@@ -1,0 +1,52 @@
+; comfy-raglan
+;  https://therunningyarn.wordpress.com/2008/04/03/comfy-raglan-sweater-free-pattern/amp/
+
+con := cast-on
+cof := cast-off
+use := needle-selection
+m := marker
+pm := place-m
+hold := put-on-holder
+pu := pick-up
+
+K := knit
+P := purl
+Kfb := knit-forward-and-back
+
+yolk = {
+  use(5.0mm, circular)
+  con(96)
+
+  { K(39) pm K(9) pm }(2)
+
+  {
+    { Kfb K(-m) Kfb slip(m) }(*)
+    K(*)
+    K(*)
+  }(23)
+
+  {
+    K(*)
+  }(2)
+
+  K(-m) hold(m) K(-m) hold(m)
+
+}
+
+body = {
+  { K(*) }(19")
+
+  { K P }(2")
+  cof(*)
+}
+
+sleeve = {
+  pu(sleeve)
+  { K(*) }(16")
+
+  { K P }(2")
+}
+
+yolk
+body
+sleeve(2)
