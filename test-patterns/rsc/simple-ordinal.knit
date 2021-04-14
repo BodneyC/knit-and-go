@@ -1,0 +1,2 @@
+first(-m) second(*) {third forth}(2) fifth(1)
+{first(-m) second(*) {{third}(4) forth}(2) fifth(1)}

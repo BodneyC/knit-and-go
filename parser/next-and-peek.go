@@ -4,23 +4,23 @@ import (
 	"fmt"
 
 	. "github.com/bodneyc/knit-and-go/lexer"
-	"github.com/bodneyc/knit-and-go/util"
+	. "github.com/bodneyc/knit-and-go/util"
 
 	log "github.com/sirupsen/logrus"
 )
 
 func (p *Parser) next() TokenContainer {
 	t := p.lexer.Next()
-	log.Debugf("Lexed token: %v", t)
+	log.Tracef("Lexed token: %v", t)
 	return t
 }
 
 func (p *Parser) nextIgnoreWsCr() (TokenContainer, error) {
 	for {
 		t := p.lexer.Next()
-		log.Debugf("Lexed token: %v", t)
+		log.Tracef("Lexed token: %v", t)
 		if t.Tok == EOF_T {
-			return t, fmt.Errorf("%s:EOF: before next token", util.Fname())
+			return t, fmt.Errorf(":EOF: before next token%s", StackLine())
 		}
 		if t.Tok != WHITE_SPACE_T && t.Tok != NEW_LINE_T {
 			return t, nil
@@ -31,9 +31,9 @@ func (p *Parser) nextIgnoreWsCr() (TokenContainer, error) {
 func (p *Parser) nextIgnoreWs() (TokenContainer, error) {
 	for {
 		t := p.lexer.Next()
-		log.Debugf("Lexed token: %v", t)
+		log.Tracef("Lexed token: %v", t)
 		if t.Tok == EOF_T {
-			return t, fmt.Errorf("%s:EOF: before next token", util.Fname())
+			return t, fmt.Errorf(":EOF: before next token%s", StackLine())
 		}
 		if t.Tok != WHITE_SPACE_T {
 			return t, nil
@@ -60,8 +60,7 @@ func (p *Parser) peekIgnoreWsCr() TokenContainer {
 
 func (p *Parser) peekIgnoreWs() TokenContainer {
 	for {
-		tp := p.lexer.Peek()
-		if tp.Tok != WHITE_SPACE_T {
+		if tp := p.lexer.Peek(); tp.Tok != WHITE_SPACE_T {
 			log.Tracef("Peeked token: %v", tp)
 			return tp
 		}

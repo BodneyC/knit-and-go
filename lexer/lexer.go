@@ -162,8 +162,8 @@ func (l *Lexer) lexIdentifier(r rune) (Token, string) {
 
 	for isIdentifier(r) {
 		log.Trace("\t-> isIdentifier: ", string(r))
-		if _, e := buf.WriteRune(r); e != nil {
-			panic(e)
+		if _, err := buf.WriteRune(r); err != nil {
+			panic(err)
 		}
 		r = l.read()
 	}

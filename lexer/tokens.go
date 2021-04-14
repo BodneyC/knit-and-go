@@ -1,5 +1,10 @@
 package lexer
 
+import (
+	"fmt"
+	"github.com/bodneyc/knit-and-go/util"
+)
+
 const EOF_LITERAL rune = rune(0)
 const LF_LITERAL rune = rune(10)
 const COMMENT_LITERAL rune = ';'
@@ -8,6 +13,12 @@ type TokenContainer struct {
 	Pos Position
 	Tok Token
 	Str string
+}
+
+func (t TokenContainer) String() string {
+	return fmt.Sprintf(
+		"{%d:%d, %d, \"%s\"}",
+		t.Pos.Line, t.Pos.Column, t.Tok, util.JsonEscape(t.Str))
 }
 
 func NewTokenContainer(pos Position, tok Token, str string) TokenContainer {

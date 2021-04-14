@@ -7,32 +7,32 @@ import (
 
 	"github.com/bodneyc/knit-and-go/ast"
 	. "github.com/bodneyc/knit-and-go/lexer"
-	"github.com/bodneyc/knit-and-go/util"
+	. "github.com/bodneyc/knit-and-go/util"
 )
 
-func (p *Parser) parseSizeMinus() (*ast.Size, error) {
-	t, e := p.nextIgnoreWs()
-	if e != nil {
-		return nil, fmt.Errorf("%s : %w", util.Fname(), e)
+func (p *Parser) parseSizeExprMinus() (*ast.SizeExpr, error) {
+	t, err := p.nextIgnoreWs()
+	if err != nil {
+		return nil, fmt.Errorf("%w%s", err, StackLine())
 	}
 	if t.Tok != IDENTIFIER_T && t.Tok != NUMERIC_T {
-		return nil, fmt.Errorf("%sValue following minus sign not valid", util.Fname())
+		return nil, fmt.Errorf("%sValue following minus sign not valid", StackLine())
 	}
-	size, e := p.parseSize(t)
-	if e != nil {
-		return nil, fmt.Errorf("%s : %w", util.Fname(), e)
+	size, err := p.parseSizeExpr(t)
+	if err != nil {
+		return nil, fmt.Errorf("%w%s", err, StackLine())
 	}
 	size.Before = true
 	return size, nil
 }
 
-func (p *Parser) parseSize(t TokenContainer) (*ast.Size, error) {
+func (p *Parser) parseSizeExpr(t TokenContainer) (*ast.SizeExpr, error) {
 	var ni int64 = -1
 	var nf float64 = -1.0
-	if val, e := strconv.ParseInt(t.Str, 10, 16); e == nil {
+	if val, err := strconv.ParseInt(t.Str, 10, 16); err == nil {
 		ni = int64(val)
 	}
-	if val, e := strconv.ParseFloat(t.Str, 64); e == nil {
+	if val, err := strconv.ParseFloat(t.Str, 64); err == nil {
 		nf = float64(val)
 	}
 
@@ -41,7 +41,7 @@ func (p *Parser) parseSize(t TokenContainer) (*ast.Size, error) {
 
 	switch tp.Tok {
 	case COMMA_T, RIGHT_PAREN_T:
-		unit = ast.NOSIZE
+		unit = ast.NOUNIT
 	case FEET_T:
 		p.nextIgnoreWs()
 		unit = ast.FEET
@@ -54,63 +54,63 @@ func (p *Parser) parseSize(t TokenContainer) (*ast.Size, error) {
 		} else if strings.EqualFold(tp.Str, "cm") {
 			unit = ast.CM
 		} else {
-			return nil, fmt.Errorf("%sNo valid unit identifier found:\n  %#v", util.Fname(), tp)
+			return nil, fmt.Errorf("%sNo valid unit identifier found:\n  %#v", StackLine(), tp)
 		}
 		p.nextIgnoreWs()
 	default:
-		return nil, fmt.Errorf("%sNo valid unit token found:\n  %#v", util.Fname(), tp)
+		return nil, fmt.Errorf("%sNo valid unit token found:\n  %#v", StackLine(), tp)
 	}
-	return ast.NewSize(ni, nf, t, unit), nil
+	return ast.NewSizeExpr(ni, nf, t, unit), nil
 }
 
 // LEFT_PAREN_T already consumed
-func (p *Parser) parseBracketGroup() (ast.BracketGroup, error) {
+func (p *Parser) parseBrackets() (ast.Brackets, error) {
 	args := make([]ast.Expr, 0)
 	for {
-		t, e := p.nextIgnoreWs()
-		if e != nil {
-			return ast.BracketGroup{}, e
+		t, err := p.nextIgnoreWs()
+		if err != nil {
+			return ast.Brackets{}, err
 		}
 		switch t.Tok {
 		case IDENTIFIER_T:
-			args = append(args, ast.NewIdent(t))
+			args = append(args, ast.NewIdentExpr(t))
 
 		case MINUS_T, NUMERIC_T:
-			var size *ast.Size
-			var e error
+			var size *ast.SizeExpr
+			var err error
 			if t.Tok == MINUS_T {
-				size, e = p.parseSizeMinus()
+				size, err = p.parseSizeExprMinus()
 			} else {
-				size, e = p.parseSize(t)
+				size, err = p.parseSizeExpr(t)
 			}
-			if e != nil {
-				return ast.BracketGroup{}, fmt.Errorf("%s : %w", util.Fname(), e)
+			if err != nil {
+				return ast.Brackets{}, fmt.Errorf("%s : %w", StackLine(), err)
 			}
 			args = append(args, size)
 
 		case ASTERISK_T:
-			args = append(args, ast.NewSizeAsterisk(t))
+			args = append(args, ast.NewSizeExprAsterisk(t))
 
 		case COMMA_T:
 			continue
 
 		case RIGHT_PAREN_T:
-			return ast.BracketGroup{args}, nil
+			return ast.Brackets{Args: args}, nil
 
 		default:
-			return ast.BracketGroup{}, fmt.Errorf("%sInvalid token in bracket group: %v", util.Fname(), t)
+			return ast.Brackets{}, fmt.Errorf("%sInvalid token in bracket group: %v", StackLine(), t)
 		}
 	}
 }
 
-func (p *Parser) parseComment(t TokenContainer) ast.CommentGroup {
-	commentGroup := ast.CommentGroup{
-		List: make([]ast.Comment, 0),
+func (p *Parser) parseCommentExpr(t TokenContainer) ast.CommentGroupExpr {
+	commentGroup := ast.CommentGroupExpr{
+		List: make([]ast.CommentExpr, 0),
 	}
 	for {
-		comment := ast.Comment{
+		comment := ast.CommentExpr{
 			Semicolon: t.Pos,
-			Text:      t.Str,
+			Str:       t.Str,
 		}
 		commentGroup.List = append(commentGroup.List, comment)
 		if peeked := p.peek().Tok; peeked != COMMENT_T && peeked != NEW_LINE_T {

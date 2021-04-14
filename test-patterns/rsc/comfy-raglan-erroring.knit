@@ -5,7 +5,7 @@ con := cast-on
 cof := cast-off
 use := needle-selection
 m := marker
-pm := place-marker
+pm := place-m
 hold := put-on-holder
 pu := pick-up
 
@@ -13,13 +13,11 @@ K := knit
 P := purl
 Kfb := knit-forward-and-back
 
-SOME-ROW = { K(39) pm K(9) pm }
-
 yolk = {
   use(5.0mm, circular)
   con(96)
 
-  P SOME-ROW(2) K
+  { K(39) pm K(9) pm }(2)
 
   {
     { Kfb K(-m) Kfb slip(m) }(*)
@@ -46,12 +44,10 @@ sleeve = {
   pu(sleeve)
   { K(*) }(16")
 
-  { K P }(2")
+	; This should error
+  ((){ K P }(2")
 }
 
-; Now it's time to do the yolk
 yolk
-; Now it's time to do the body
 body
-; Now it's time to do the sleeves
 sleeve(2)

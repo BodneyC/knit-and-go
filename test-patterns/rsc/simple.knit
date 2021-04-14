@@ -1,0 +1,11 @@
+con := cast-on
+m := marker
+
+yolk = {
+  use(5.0mm, circular)
+	p := purl
+  con(96)
+
+}
+
+first(-m) second(*) {third forth}(2) fifth

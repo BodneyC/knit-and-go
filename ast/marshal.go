@@ -2,7 +2,6 @@ package ast
 
 import (
 	"encoding/json"
-	"reflect"
 )
 
 func (o *BlockStmt) MarshalJSON() ([]byte, error) {
@@ -11,20 +10,20 @@ func (o *BlockStmt) MarshalJSON() ([]byte, error) {
 		Type string `json:"type"`
 		*Copy
 	}{
-		Type:      reflect.TypeOf(*o).Name(),
+		Type: "BlockStmt",
 		Copy: (*Copy)(o),
 	})
 }
 
 func (o *AliasStmt) MarshalJSON() ([]byte, error) {
 	type Copy AliasStmt
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type:      reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "AliasStmt",
+		Copy: (*Copy)(o),
+	})
 }
 
 func (o *AssignStmt) MarshalJSON() ([]byte, error) {
@@ -33,42 +32,31 @@ func (o *AssignStmt) MarshalJSON() ([]byte, error) {
 		Type string `json:"type"`
 		*Copy
 	}{
-		Type:       reflect.TypeOf(*o).Name(),
+		Type: "AssignStmt",
 		Copy: (*Copy)(o),
 	})
 }
 
-// func (o *CallExpr) MarshalJSON() ([]byte, error) {
-//   type Copy CallExpr
-//   return json.Marshal(&struct {
-//     Type string `json:"type"`
-//     *Copy
-//   }{
-//     Type:     reflect.TypeOf(*o).Name(),
-//     Copy: (*Copy)(o),
-//   })
-// }
-
-func (o *Comment) MarshalJSON() ([]byte, error) {
-	type Copy Comment
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type:    reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+func (o *CommentExpr) MarshalJSON() ([]byte, error) {
+	type Copy CommentExpr
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "CommentExpr",
+		Copy: (*Copy)(o),
+	})
 }
 
-func (o *CommentGroup) MarshalJSON() ([]byte, error) {
-	type Copy CommentGroup
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type:         reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+func (o *CommentGroupExpr) MarshalJSON() ([]byte, error) {
+	type Copy CommentGroupExpr
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "CommentGroupExpr",
+		Copy: (*Copy)(o),
+	})
 }
 
 func (o *GroupExpr) MarshalJSON() ([]byte, error) {
@@ -77,54 +65,43 @@ func (o *GroupExpr) MarshalJSON() ([]byte, error) {
 		Type string `json:"type"`
 		*Copy
 	}{
-		Type:      reflect.TypeOf(*o).Name(),
+		Type: "GroupExpr",
 		Copy: (*Copy)(o),
 	})
 }
 
 func (o *GroupStmt) MarshalJSON() ([]byte, error) {
 	type Copy GroupStmt
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type:      reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "GroupStmt",
+		Copy: (*Copy)(o),
+	})
 }
 
-func (o *Ident) MarshalJSON() ([]byte, error) {
-	type Copy Ident
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type:  reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+func (o *IdentExpr) MarshalJSON() ([]byte, error) {
+	type Copy IdentExpr
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "IdentExpr",
+		Copy: (*Copy)(o),
+	})
 }
 
-func (o *ImportSpec) MarshalJSON() ([]byte, error) {
-	type Copy ImportSpec
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type:       reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+func (o *ImportStmt) MarshalJSON() ([]byte, error) {
+	type Copy ImportStmt
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "ImportStmt",
+		Copy: (*Copy)(o),
+	})
 }
-
-// func (o *ParenExpr) MarshalJSON() ([]byte, error) {
-//   type Copy ParenExpr
-//   return json.Marshal(&struct {
-//     Type string `json:"type"`
-//     *Copy
-//   }{
-//     Type:      reflect.TypeOf(*o).Name(),
-//     Copy: (*Copy)(o),
-//   })
-// }
 
 func (o *RowExpr) MarshalJSON() ([]byte, error) {
 	type Copy RowExpr
@@ -132,40 +109,40 @@ func (o *RowExpr) MarshalJSON() ([]byte, error) {
 		Type string `json:"type"`
 		*Copy
 	}{
-		Type:    reflect.TypeOf(*o).Name(),
+		Type: "RowExpr",
 		Copy: (*Copy)(o),
 	})
 }
 
 func (o *RowStmt) MarshalJSON() ([]byte, error) {
 	type Copy RowStmt
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type:    reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "RowStmt",
+		Copy: (*Copy)(o),
+	})
 }
 
-func (o *Size) MarshalJSON() ([]byte, error) {
-	type Copy Size
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type: reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+func (o *SizeExpr) MarshalJSON() ([]byte, error) {
+	type Copy SizeExpr
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "SizeExpr",
+		Copy: (*Copy)(o),
+	})
 }
 
 func (o *StitchExpr) MarshalJSON() ([]byte, error) {
 	type Copy StitchExpr
-  return json.Marshal(&struct {
-    Type string `json:"type"`
-    *Copy
-  }{
-    Type:       reflect.TypeOf(*o).Name(),
-    Copy: (*Copy)(o),
-  })
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Copy
+	}{
+		Type: "StitchExpr",
+		Copy: (*Copy)(o),
+	})
 }
