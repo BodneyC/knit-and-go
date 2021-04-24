@@ -113,10 +113,20 @@ func (p *Parser) parseCommentExpr(t TokenContainer) ast.CommentGroupExpr {
 			Str:       t.Str,
 		}
 		commentGroup.List = append(commentGroup.List, comment)
-		if peeked := p.peek().Tok; peeked != COMMENT_T && peeked != NEW_LINE_T {
+		peeked := p.peek()
+		if peeked.Tok != COMMENT_T && peeked.Tok != NEW_LINE_T {
 			break
 		}
 		t = p.next()
+		if t.Tok == NEW_LINE_T {
+			peeked = p.peek()
+			if peeked.Tok == COMMENT_T {
+				if t.Str == "\n\n" {
+					break
+				}
+				t = p.next()
+			}
+		}
 	}
 	return commentGroup
 }

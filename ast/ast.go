@@ -8,20 +8,20 @@ import (
 
 type Node interface {
 	Pos() Position
-	WalkForLocals(*Engine)
+	WalkForLocals(*EngineData)
 }
 
 type Expr interface {
 	Node
 	exprNode()
-	Text(*Engine) string
-	WalkForLines(*Engine, *LineContainer) error
+	Text(*EngineData) string
+	WalkForLines(*EngineData, *LineContainer) error
 }
 
 type Stmt interface {
 	Node
 	stmtNode()
-	WalkForLines(*Engine) error
+	WalkForLines(*EngineData) error
 }
 
 // ----- Bracket group, implements nothing -----
@@ -30,7 +30,7 @@ type Brackets struct {
 	Args []Expr `json:"args"`
 }
 
-func (o *Brackets) WalkForLines(e *Engine, lc *LineContainer) error {
+func (o *Brackets) WalkForLines(e *EngineData, lc *LineContainer) error {
 	lc.Args = append(lc.Args, o.TextSlice(e)...)
 	return nil
 }
@@ -47,18 +47,18 @@ func (o *Brackets) GetSizeInt() int {
 	return i
 }
 
-func (o *Brackets) GetSizeText(e *Engine) string {
+func (o *Brackets) GetSizeText(e *EngineData) string {
 	if len(o.Args) == 1 {
 		return o.Args[0].Text(e)
 	}
 	var s []string
 	for _, arg := range o.Args {
-			s = append(s, arg.Text(e))
+		s = append(s, arg.Text(e))
 	}
 	return strings.Join(s, " ")
 }
 
-func (o *Brackets) TextSlice(e *Engine) []string {
+func (o *Brackets) TextSlice(e *EngineData) []string {
 	s := make([]string, 0)
 	for _, arg := range o.Args {
 		s = append(s, arg.Text(e))
@@ -72,7 +72,7 @@ func MakeBrackets() Brackets {
 	}
 }
 
-func (o *Brackets) WalkForLocals(e *Engine) {
+func (o *Brackets) WalkForLocals(e *EngineData) {
 	for _, args := range o.Args {
 		args.WalkForLocals(e)
 	}

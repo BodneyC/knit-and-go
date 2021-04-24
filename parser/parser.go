@@ -15,11 +15,11 @@ type Parser struct {
 	Root  ast.BlockStmt
 }
 
-func (o *Parser) WalkForLocals(e *ast.Engine) {
+func (o *Parser) WalkForLocals(e *ast.EngineData) {
 	o.Root.WalkForLocals(e)
 }
 
-func (o *Parser) WalkForLines(e *ast.Engine) error {
+func (o *Parser) WalkForLines(e *ast.EngineData) error {
 	return o.Root.WalkForLines(e)
 }
 
@@ -203,14 +203,22 @@ func (p *Parser) parseStitches() (ast.Expr, error) {
 // ------------------ Statements ------------------
 
 func (p *Parser) parseRowStmt(desc ast.CommentGroupExpr, firstToken TokenContainer, first bool) (ast.Stmt, error) {
-	if firstToken.Tok == COMMENT_T {
-		desc = p.parseCommentExpr(firstToken)
-		var err error
-		firstToken, err = p.nextIgnoreWs()
-		if err != nil {
-			return nil, fmt.Errorf("%w%s", err, StackLine())
+	for {
+		if firstToken.Tok == NEW_LINE_T {
+			firstToken = p.next()
+		}
+		if firstToken.Tok == COMMENT_T {
+			desc = p.parseCommentExpr(firstToken)
+			var err error
+			firstToken, err = p.nextIgnoreWs()
+			if err != nil {
+				return nil, fmt.Errorf("%w%s", err, StackLine())
+			}
+		} else {
+			break
 		}
 	}
+
 	// log.Debugf("%v%s", firstToken, StackLine())
 	row, err := p.parseRowExpr(firstToken, first)
 	if err != nil {
@@ -308,12 +316,23 @@ func (p *Parser) parseBraceLine(desc ast.CommentGroupExpr, firstToken TokenConta
 
 func (p *Parser) parseLine(desc ast.CommentGroupExpr, firstToken TokenContainer) (ast.Stmt, error) {
 
-	switch firstToken.Tok {
-	case COMMENT_T: // Keep first case
-		// parseCommentExpr will consume until no comments left
-		desc = p.parseCommentExpr(firstToken)
-		fallthrough
+	for {
+		if firstToken.Tok == NEW_LINE_T {
+			firstToken = p.next()
+		}
+		if firstToken.Tok == COMMENT_T {
+			desc = p.parseCommentExpr(firstToken)
+			var err error
+			firstToken, err = p.nextIgnoreWs()
+			if err != nil {
+				return nil, fmt.Errorf("%w%s", err, StackLine())
+			}
+		} else {
+			break
+		}
+	}
 
+	switch firstToken.Tok {
 	case IDENTIFIER_T:
 		s, err := p.parseIdentExprifierLine(desc, firstToken)
 		if err != nil {

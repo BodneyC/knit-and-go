@@ -1,6 +1,16 @@
 package tui
 
-import "github.com/bodneyc/knit-and-go/ast"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/bodneyc/knit-and-go/ast"
+
+	ui "github.com/gizak/termui/v3"
+	w "github.com/gizak/termui/v3/widgets"
+	log "github.com/sirupsen/logrus"
+)
 
 type KnownTokens string
 
@@ -12,8 +22,220 @@ const (
 
 type Screen struct {
 	engine *ast.Engine
+	blockDescPar,
+	groupDescPar,
+	rowDescPar,
+	rowCtrPar,
+	stitchCtrPar,
+	stateCtrPar,
+	prevRow,
+	nextRow,
+	currentRowPar,
+	argsPar *w.Paragraph
 }
 
 func NewScreen(engine *ast.Engine) *Screen {
 	return &Screen{engine: engine}
+}
+
+func prettyRowWithHighlight(state *ast.CurrentState) string {
+	var s []string
+	for idx, fragment := range state.Lc.Row {
+		if fragment == "{" || (len(state.Lc.Row) > idx+1 && state.Lc.Row[idx+1][0] == '}') {
+			if idx == state.Ctr.StitchPhrase {
+				fragment = fmt.Sprintf("[%s](fg:red)", fragment)
+			}
+			s = append(s, fragment)
+		} else {
+			if idx == state.Ctr.StitchPhrase {
+				fragment = fmt.Sprintf("[%s](fg:red)", fragment)
+			}
+			if idx == len(state.Lc.Row)-1 {
+				s = append(s, fmt.Sprintf("%s", fragment))
+			} else {
+				s = append(s, fmt.Sprintf("%s,", fragment))
+			}
+		}
+	}
+	return strings.Join(s, " ")
+}
+
+func (s *Screen) paragraphSetup() {
+	s.blockDescPar = w.NewParagraph()
+	s.blockDescPar.Title = " Description "
+	s.blockDescPar.TitleStyle.Modifier = ui.ModifierBold
+	s.blockDescPar.BorderBottom = false
+
+	s.groupDescPar = w.NewParagraph()
+	s.groupDescPar.Title = "Group description:"
+	s.groupDescPar.TitleStyle.Modifier = ui.ModifierBold
+	s.groupDescPar.BorderTop = false
+	s.groupDescPar.BorderBottom = false
+
+	s.rowDescPar = w.NewParagraph()
+	s.rowDescPar.Title = "Row description:"
+	s.rowDescPar.TitleStyle.Modifier = ui.ModifierBold
+	s.rowDescPar.BorderTop = false
+
+	s.rowCtrPar = w.NewParagraph()
+	s.rowCtrPar.Title = " Row counter "
+	s.rowCtrPar.TitleStyle.Modifier = ui.ModifierBold
+
+	s.stitchCtrPar = w.NewParagraph()
+	s.stitchCtrPar.Title = " Stitch-phrase counter "
+	s.stitchCtrPar.TitleStyle.Modifier = ui.ModifierBold
+
+	s.stateCtrPar = w.NewParagraph()
+	s.stateCtrPar.Title = " State counter "
+	s.stateCtrPar.TitleStyle.Modifier = ui.ModifierBold
+
+	s.currentRowPar = w.NewParagraph()
+	s.currentRowPar.Title = " Current row "
+	s.currentRowPar.TitleStyle.Modifier = ui.ModifierBold
+	s.currentRowPar.BorderBottom = false
+
+	s.argsPar = w.NewParagraph()
+	s.argsPar.Title = "Args:"
+	s.argsPar.TitleStyle.Modifier = ui.ModifierBold
+	s.argsPar.BorderTop = false
+
+	s.nextRow = w.NewParagraph()
+	s.nextRow.Title = " Next row "
+	s.nextRow.TitleStyle.Modifier = ui.ModifierBold
+
+	s.prevRow = w.NewParagraph()
+	s.prevRow.Title = " Previous row "
+	s.prevRow.TitleStyle.Modifier = ui.ModifierBold
+}
+
+func (s *Screen) setParagraphs(state *ast.CurrentState) error {
+	if len(state.Desc.Block) != 0 {
+		s.blockDescPar.Text = state.Desc.Block
+	}
+	if len(state.Desc.Group) != 0 {
+		s.groupDescPar.Text = state.Desc.Group
+	}
+	if len(state.Desc.Row) != 0 {
+		s.rowDescPar.Text = state.Desc.Row
+	}
+	s.rowCtrPar.Text = strconv.Itoa(state.Ctr.Row)
+	s.stitchCtrPar.Text = strconv.Itoa(state.Ctr.Stitch)
+	s.stateCtrPar.Text = fmt.Sprintf("%d/%d", s.engine.StateIdx, len(s.engine.States)-1)
+	s.currentRowPar.Text = prettyRowWithHighlight(state)
+	s.argsPar.Text = strings.Join(state.Lc.Args, ", ")
+
+	if s.engine.StateIdx-1 >= 0 {
+		s.prevRow.Text = s.engine.States[s.engine.StateIdx-1].HistRow
+	} else {
+		s.prevRow.Text = "Start of pattern"
+	}
+	if s.engine.StateIdx+1 < len(s.engine.States) {
+		s.nextRow.Text = s.engine.States[s.engine.StateIdx+1].HistRow
+	} else {
+		s.nextRow.Text = "End of pattern"
+	}
+
+	return nil
+}
+
+func (s *Screen) Run() error {
+	if err := ui.Init(); err != nil {
+		log.Fatalf("Failed to initialize termui: %v", err)
+	}
+	defer ui.Close()
+
+	s.paragraphSetup()
+
+	state := &s.engine.States[0]
+	s.setParagraphs(state)
+
+	width, height := ui.TerminalDimensions()
+	grid := ui.NewGrid()
+	grid.SetRect(0, 0, width, height)
+
+	descGrid := ui.NewGrid()
+	descGrid.Set()
+
+	grid.Set(
+		ui.NewRow(0.5,
+			ui.NewCol(1.0,
+				// Descriptions
+				ui.NewRow(0.4, s.blockDescPar),
+				ui.NewRow(0.3, s.groupDescPar),
+				ui.NewRow(0.3, s.rowDescPar),
+			),
+		),
+		ui.NewRow(0.4,
+			ui.NewCol(1.0,
+				// Rows
+				ui.NewRow(0.25, s.prevRow),
+				ui.NewRow(0.3, s.currentRowPar),
+				ui.NewRow(0.2, s.argsPar),
+				ui.NewRow(0.25, s.nextRow),
+			),
+		),
+		ui.NewRow(0.1,
+			// Counters
+			ui.NewCol(1.0/3, s.stitchCtrPar),
+			ui.NewCol(1.0/3, s.rowCtrPar),
+			ui.NewCol(1.0/3, s.stateCtrPar),
+		),
+	)
+
+	ui.Render(grid)
+
+	events := ui.PollEvents()
+	for {
+		e := <-events
+		switch e.ID {
+		case "q", "<C-c>":
+			return nil
+
+		case "n", "j", "<Down>":
+			state = s.engine.NextState()
+
+		case "p", "N", "k", "<Up>":
+			state = s.engine.PrevState()
+
+		case "l", "<Right>":
+			if len(state.Lc.Row) > state.Ctr.StitchPhrase+1 {
+				
+				state.Ctr.StitchPhrase += 1
+			}
+
+		case "h", "<Left>":
+			if state.Ctr.StitchPhrase-1 >= 0 {
+				state.Ctr.StitchPhrase -= 1
+			}
+
+		case "s":
+			state.Ctr.Stitch += 1
+
+		case "S":
+			if state.Ctr.Stitch-1 >= 0 {
+				state.Ctr.Stitch -= 1
+			}
+
+		case "r":
+			state.Ctr.Row += 1
+
+		case "R":
+			if state.Ctr.Row-1 >= 0 {
+				state.Ctr.Row -= 1
+			}
+
+		case "x":
+			state.Ctr.Stitch = 0
+			state.Ctr.Row = 0
+
+		case "<Resize>":
+			payload := e.Payload.(ui.Resize)
+			grid.SetRect(0, 0, payload.Width, payload.Height)
+			ui.Clear()
+			ui.Render(grid)
+		}
+
+		s.setParagraphs(state)
+		ui.Render(grid)
+	}
 }

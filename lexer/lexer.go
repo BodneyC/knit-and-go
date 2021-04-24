@@ -46,12 +46,12 @@ func (l *Lexer) Next() TokenContainer {
 	pos := l.pos
 
 	if r == EOF_LITERAL {
-		log.Trace("Lexer.Lex -> r: \":EOF:\"")
+		log.WithField("literal", "\":EOF:\"").Trace("[Lexer.Lex]")
 		return NewTokenContainer(pos, EOF_T, ":EOF:")
 	}
 
 	if r == COMMENT_LITERAL {
-		log.Trace("Lexer.Lex -> r: ;")
+		log.WithField("literal", ";" ).Trace("[Lexer.Lex]")
 		tok, str := l.lexComment()
 		return NewTokenContainer(pos, tok, str)
 	}
@@ -66,7 +66,7 @@ func (l *Lexer) Next() TokenContainer {
 
 	// isLetter, then isIdentifier
 	if unicode.IsLetter(r) {
-		log.Trace("Lexer.Lex -> r: [A-Za-z]")
+		log.WithField("literal", "[A-Za-z]" ).Trace("[Lexer.Lex]")
 		tok, str := l.lexIdentifier(r)
 		return NewTokenContainer(pos, tok, str)
 	}
@@ -121,8 +121,6 @@ func (l *Lexer) lexFor(r rune, fn validator, t Token) (Token, string) {
 }
 
 func (l *Lexer) lexGrammar(r rune) (Token, string) {
-	log.Trace("Lexer.lexGrammar ->")
-
 	var token Token
 
 	switch r {
@@ -150,18 +148,14 @@ func (l *Lexer) lexGrammar(r rune) (Token, string) {
 		token = ILLEGAL_T
 	}
 
-	log.Trace("\t-> token: ", token)
-	log.Trace("\t-> literal: ", string(r))
+	log.WithFields(log.Fields{"literal": string(r), "token": token}).Trace("[Lexer.lexGrammar]")
 	return token, string(r)
 }
 
 func (l *Lexer) lexIdentifier(r rune) (Token, string) {
-	log.Trace("Lexer.lexIdentifier ->")
-
 	var buf bytes.Buffer
 
 	for isIdentifier(r) {
-		log.Trace("\t-> isIdentifier: ", string(r))
 		if _, err := buf.WriteRune(r); err != nil {
 			panic(err)
 		}
@@ -170,7 +164,7 @@ func (l *Lexer) lexIdentifier(r rune) (Token, string) {
 
 	l.unread(r)
 
-	log.Trace("\t-> final r: ", r)
+	log.WithField("literal", r).Trace("[Lexer.lexIdentifier]")
 
 	return IDENTIFIER_T, buf.String()
 }
@@ -180,7 +174,6 @@ func (l *Lexer) read() rune {
 		return EOF_LITERAL
 	} else {
 		l.pos.inc(r)
-		// log.Trace("Lexer.read -> ", string(r))
 		return r
 	}
 }

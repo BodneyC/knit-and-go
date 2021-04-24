@@ -11,14 +11,14 @@ import (
 
 func (p *Parser) next() TokenContainer {
 	t := p.lexer.Next()
-	log.Tracef("Lexed token: %v", t)
+	log.WithFields(t.Fields()).Trace("[Parser.next]")
 	return t
 }
 
 func (p *Parser) nextIgnoreWsCr() (TokenContainer, error) {
 	for {
 		t := p.lexer.Next()
-		log.Tracef("Lexed token: %v", t)
+		log.WithFields(t.Fields()).Trace("[Parser.nextIgnoreWsCr]")
 		if t.Tok == EOF_T {
 			return t, fmt.Errorf(":EOF: before next token%s", StackLine())
 		}
@@ -31,7 +31,7 @@ func (p *Parser) nextIgnoreWsCr() (TokenContainer, error) {
 func (p *Parser) nextIgnoreWs() (TokenContainer, error) {
 	for {
 		t := p.lexer.Next()
-		log.Tracef("Lexed token: %v", t)
+		log.WithFields(t.Fields()).Trace("[Parser.nextIgnoreWs]")
 		if t.Tok == EOF_T {
 			return t, fmt.Errorf(":EOF: before next token%s", StackLine())
 		}
@@ -43,7 +43,7 @@ func (p *Parser) nextIgnoreWs() (TokenContainer, error) {
 
 func (p *Parser) peek() TokenContainer {
 	t := p.lexer.Peek()
-	log.Tracef("Peeked token: %v", t)
+	log.WithFields(t.Fields()).Trace("[Parser.peek]")
 	return t
 }
 
@@ -51,7 +51,7 @@ func (p *Parser) peekIgnoreWsCr() TokenContainer {
 	for {
 		tp := p.lexer.Peek()
 		if tp.Tok != WHITE_SPACE_T && tp.Tok != NEW_LINE_T {
-			log.Tracef("Peeked token: %v", tp)
+			log.WithFields(tp.Fields()).Trace("[Parser.peekIgnoreWsCr]")
 			return tp
 		}
 		p.lexer.Next()
@@ -61,7 +61,7 @@ func (p *Parser) peekIgnoreWsCr() TokenContainer {
 func (p *Parser) peekIgnoreWs() TokenContainer {
 	for {
 		if tp := p.lexer.Peek(); tp.Tok != WHITE_SPACE_T {
-			log.Tracef("Peeked token: %v", tp)
+			log.WithFields(tp.Fields()).Trace("[Parser.peekIgnoreWs]")
 			return tp
 		}
 		p.lexer.Next()

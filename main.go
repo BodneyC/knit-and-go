@@ -9,6 +9,7 @@ import (
 	"github.com/bodneyc/knit-and-go/ast"
 	"github.com/bodneyc/knit-and-go/lexer"
 	"github.com/bodneyc/knit-and-go/parser"
+	"github.com/bodneyc/knit-and-go/tui"
 	"github.com/bodneyc/knit-and-go/util"
 	log "github.com/sirupsen/logrus"
 )
@@ -56,23 +57,19 @@ func configureLogger(logLevelCli string, timings bool) error {
 func main() {
 	args, err := util.ParseCli()
 	if err != nil {
-		log.Trace(err)
-		os.Exit(OPTION_EX)
+		log.WithFields(log.Fields{"error": err}).Fatal("Error")
 	}
 
 	if err := configureLogger(args.LogLevel, args.LogTimer); err != nil {
-		log.Errorf("Failed to set log level%w", err)
-		os.Exit(GENERIC_EX)
+		log.Fatalf("Failed to set log level%v", err)
 	}
 
 	log.Info("Starting knit compiler")
-	log.Infof("Attempting to open %s", args.Infile)
+	log.WithField("infile", args.Infile).Info("Attempting to open input")
 
 	file, err := os.Open(args.Infile)
 	if err != nil {
-		log.Errorf("Couldn't open input file")
-		log.Tracef("%s%w", args.Infile, err)
-		os.Exit(OPTION_EX)
+		log.Error(err)
 	}
 	defer file.Close()
 
@@ -86,31 +83,27 @@ func main() {
 		p = parser.NewParser(*l)
 		err = p.Parse()
 		if err != nil {
-			log.Errorf("Failed to parse input file%w", err)
-			os.Exit(PARSER_EX)
+			log.Fatalf("Failed to parse input file%v", err)
 		}
 
-	case util.JSON_IOF:
+	case util.AST_IOF:
 		log.Info("Reading input JSON")
 
 		fStat, err := file.Stat()
 		if err != nil {
-			log.Errorf("Couldn't stat input JSON%w", err)
-			os.Exit(FILESYS_EX)
+			log.Fatalf("Couldn't stat input JSON%v", err)
 		}
 
 		jsonBytes := make([]byte, fStat.Size())
 		if _, err := file.Read(jsonBytes); err != nil {
-			log.Errorf("Couldn't read input JSON%w", err)
-			os.Exit(FILESYS_EX)
+			log.Fatalf("Couldn't read input JSON%v", err)
 		}
 
 		log.Info("Parsing JSON")
 
 		var rootBlockStmt ast.BlockStmt
 		if err = json.Unmarshal(jsonBytes, &rootBlockStmt); err != nil {
-			log.Errorf("Couldn't parse input JSON%w", err)
-			os.Exit(PARSER_EX)
+			log.Fatalf("Couldn't parse input JSON%v", err)
 		}
 
 		p = parser.NewParserFromBlockStmt(rootBlockStmt)
@@ -123,11 +116,11 @@ func main() {
 			panic(err)
 		}
 		log.Info("Marshalling complete")
-		log.Info("Writing to file...")
+		log.WithField("outfile", args.Jsonfile).Info("Writing to file")
 		if err := ioutil.WriteFile(args.Jsonfile, rootJson, 0644); err != nil {
-			log.Errorf("Failed to write to root.json : %w", err)
+			log.Error("Failed to write to root.json", err)
 		}
-		log.Info("File written")
+		log.WithField("outfile", args.Jsonfile).Info("File written")
 	}
 
 	if args.NoRun {
@@ -135,12 +128,21 @@ func main() {
 		os.Exit(SUCCESS_EX)
 	}
 
-	e := ast.NewEngine()
-	p.WalkForLocals(e)
-	if err := p.WalkForLines(e); err != nil {
+	log.Info("Creating engine data")
+	engineData := ast.NewEngineData()
+	p.WalkForLocals(engineData)
+	if err := p.WalkForLines(engineData); err != nil {
 		panic(err)
 	}
 
-	e.PrintLines()
+	// engineData.PrintLines()
 
+	log.Info("Creating engine from data")
+	e := ast.MakeEngine(engineData)
+	e.FormStates()
+
+	// e.PrintEngine()
+
+	tui := tui.NewScreen(&e)
+	tui.Run()
 }

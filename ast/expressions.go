@@ -18,10 +18,10 @@ type CommentExpr struct {
 func (o *CommentExpr) exprNode()     {}
 func (o *CommentExpr) Pos() Position { return o.Semicolon }
 
-func (o *CommentExpr) WalkForLines(e *Engine, lc *LineContainer) error { return nil }
+func (o *CommentExpr) WalkForLines(e *EngineData, lc *LineContainer) error { return nil }
 
-func (o *CommentExpr) WalkForLocals(e *Engine) {}
-func (o *CommentExpr) Text(e *Engine) string   { return o.Str }
+func (o *CommentExpr) WalkForLocals(e *EngineData) {}
+func (o *CommentExpr) Text(e *EngineData) string   { return o.Str }
 
 // ---------------- CommentGroupExpr ---------------
 
@@ -38,14 +38,14 @@ func MakeCommentGroupExpr() CommentGroupExpr {
 func (o *CommentGroupExpr) exprNode()     {}
 func (o *CommentGroupExpr) Pos() Position { return o.List[0].Pos() }
 
-func (o *CommentGroupExpr) WalkForLocals(e *Engine) {}
+func (o *CommentGroupExpr) WalkForLocals(e *EngineData) {}
 
-func (o *CommentGroupExpr) WalkForLines(e *Engine, lc *LineContainer) error { return nil }
+func (o *CommentGroupExpr) WalkForLines(e *EngineData, lc *LineContainer) error { return nil }
 
-func (o *CommentGroupExpr) Text(e *Engine) string {
+func (o *CommentGroupExpr) Text(e *EngineData) string {
 	return strings.Join(o.TextSlice(e), "\n")
 }
-func (o *CommentGroupExpr) TextSlice(e *Engine) []string {
+func (o *CommentGroupExpr) TextSlice(e *EngineData) []string {
 	if o == nil {
 		return []string{}
 	}
@@ -99,9 +99,8 @@ func (o *IdentExpr) exprNode()     {}
 func (o *IdentExpr) Pos() Position { return o.At }
 
 // Only for assignment values
-func (o *IdentExpr) WalkForLines(e *Engine, lc *LineContainer) error {
+func (o *IdentExpr) WalkForLines(e *EngineData, lc *LineContainer) error {
 	if assign := e.checkAssigns(o); assign != nil {
-		// TODO: Check the use of desc and group for this
 		if err := (*assign).WalkForLines(e, lc); err != nil {
 			return err
 		}
@@ -111,7 +110,7 @@ func (o *IdentExpr) WalkForLines(e *Engine, lc *LineContainer) error {
 	return nil
 }
 
-func (o *IdentExpr) AliasForLines(e *Engine, lc *LineContainer, size string) error {
+func (o *IdentExpr) AliasForLines(e *EngineData, lc *LineContainer, size string) error {
 	alias := e.checkAliases(*o)
 	aliasText := alias.Text(e)
 	fragment := aliasText
@@ -122,10 +121,10 @@ func (o *IdentExpr) AliasForLines(e *Engine, lc *LineContainer, size string) err
 	return nil
 }
 
-func (o *IdentExpr) WalkForLocals(e *Engine) {}
+func (o *IdentExpr) WalkForLocals(e *EngineData) {}
 
 // No assignment should exist if calling this function
-func (o *IdentExpr) Text(e *Engine) string {
+func (o *IdentExpr) Text(e *EngineData) string {
 	return e.checkAliases(*o).Name
 }
 
@@ -148,10 +147,10 @@ func NewStitchExpr(ident IdentExpr, args Brackets) *StitchExpr {
 func (o *StitchExpr) exprNode()     {}
 func (o *StitchExpr) Pos() Position { return o.At }
 
-func (o *StitchExpr) WalkForLocals(e *Engine) {}
-func (o *StitchExpr) Text(e *Engine) string   { return "" }
+func (o *StitchExpr) WalkForLocals(e *EngineData) {}
+func (o *StitchExpr) Text(e *EngineData) string   { return "" }
 
-func (o *StitchExpr) WalkForLines(e *Engine, lc *LineContainer) error {
+func (o *StitchExpr) WalkForLines(e *EngineData, lc *LineContainer) error {
 	if assign := e.checkAssigns(&o.Id); assign != nil {
 		o.Args.WalkForLines(e, lc)
 		(*assign).WalkForLines(e, lc)
@@ -209,9 +208,9 @@ func NewSizeExprAsterisk(asterisk TokenContainer) *SizeExpr {
 func (o *SizeExpr) exprNode()     {}
 func (o *SizeExpr) Pos() Position { return o.At }
 
-func (o *SizeExpr) WalkForLocals(e *Engine) {}
+func (o *SizeExpr) WalkForLocals(e *EngineData) {}
 
-func (o *SizeExpr) WalkForLines(e *Engine, lc *LineContainer) error { return nil }
+func (o *SizeExpr) WalkForLines(e *EngineData, lc *LineContainer) error { return nil }
 
 func (o *SizeExpr) GetSizeInt() int {
 	if o.Unit == NOUNIT && !o.Before {
@@ -220,7 +219,7 @@ func (o *SizeExpr) GetSizeInt() int {
 	return -1
 }
 
-func (o *SizeExpr) Text(e *Engine) string {
+func (o *SizeExpr) Text(e *EngineData) string {
 	var s string
 
 	if o.Unit == ASTERISK {
@@ -278,9 +277,9 @@ func NewRowExpr(exprs []Expr, args Brackets) *RowExpr {
 func (o *RowExpr) exprNode()     {}
 func (o *RowExpr) Pos() Position { return o.Stitches[0].Pos() }
 
-func (o *RowExpr) Text(e *Engine) string { return "" }
+func (o *RowExpr) Text(e *EngineData) string { return "" }
 
-func (o *RowExpr) WalkForLines(e *Engine, lc *LineContainer) error {
+func (o *RowExpr) WalkForLines(e *EngineData, lc *LineContainer) error {
 	if !e.nestedRow {
 		o.Args.WalkForLines(e, lc)
 	}
@@ -288,7 +287,7 @@ func (o *RowExpr) WalkForLines(e *Engine, lc *LineContainer) error {
 		switch stitch.(type) {
 		case *RowExpr:
 			rowExpr := stitch.(*RowExpr)
-			lc.Row = append(lc.Row, "[")
+			lc.Row = append(lc.Row, "{")
 			e.nestedRow = true
 			e.nestedLevel += 1
 			if err := stitch.WalkForLines(e, lc); err != nil {
@@ -296,7 +295,7 @@ func (o *RowExpr) WalkForLines(e *Engine, lc *LineContainer) error {
 			}
 			e.nestedLevel -= 1
 			e.nestedRow = false
-			endWrap := "]"
+			endWrap := "}"
 			if size := rowExpr.Args.GetSizeText(e); size != "" {
 				endWrap = fmt.Sprintf("%s %s", endWrap, size)
 			}
@@ -306,12 +305,11 @@ func (o *RowExpr) WalkForLines(e *Engine, lc *LineContainer) error {
 				return fmt.Errorf("%w%s", err, util.StackLine())
 			}
 		}
-		// fmt.Printf("Stitch: %#v\nlc: %#v\n\n", stitch, lc)
 	}
 	return nil
 }
 
-func (o *RowExpr) WalkForLocals(e *Engine) {
+func (o *RowExpr) WalkForLocals(e *EngineData) {
 	for _, stitch := range o.Stitches {
 		stitch.WalkForLocals(e)
 	}
@@ -338,9 +336,9 @@ func NewGroupExpr(l Position, r Position, lines []Stmt, args Brackets) *GroupExp
 func (o *GroupExpr) exprNode()     {}
 func (o *GroupExpr) Pos() Position { return o.LBrace }
 
-func (o *GroupExpr) Text(e *Engine) string { return "" }
+func (o *GroupExpr) Text(e *EngineData) string { return "" }
 
-func (o *GroupExpr) WalkForLines(e *Engine, lc *LineContainer) error {
+func (o *GroupExpr) WalkForLines(e *EngineData, lc *LineContainer) error {
 	for _, line := range o.Lines {
 		if err := line.WalkForLines(e); err != nil {
 			return fmt.Errorf("%w%s", err, util.StackLine())
@@ -349,7 +347,7 @@ func (o *GroupExpr) WalkForLines(e *Engine, lc *LineContainer) error {
 	return nil
 }
 
-func (o *GroupExpr) WalkForLocals(e *Engine) {
+func (o *GroupExpr) WalkForLocals(e *EngineData) {
 	for _, line := range o.Lines {
 		line.WalkForLocals(e)
 	}

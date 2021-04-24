@@ -2,7 +2,9 @@ package lexer
 
 import (
 	"fmt"
+
 	"github.com/bodneyc/knit-and-go/util"
+	"github.com/sirupsen/logrus"
 )
 
 const EOF_LITERAL rune = rune(0)
@@ -13,6 +15,18 @@ type TokenContainer struct {
 	Pos Position
 	Tok Token
 	Str string
+}
+
+func (t *TokenContainer) Fields() logrus.Fields {
+	s := t.Str
+	if len(s) > 6 {
+		s = fmt.Sprint(s[0:3], "...")
+	}
+	return logrus.Fields{
+		"pos": t.Pos,
+		"tok": t.Tok,
+		"str": s,
+	}
 }
 
 func (t TokenContainer) String() string {

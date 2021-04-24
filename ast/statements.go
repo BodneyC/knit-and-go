@@ -5,7 +5,6 @@ import (
 
 	. "github.com/bodneyc/knit-and-go/lexer"
 	"github.com/bodneyc/knit-and-go/util"
-	log "github.com/sirupsen/logrus"
 )
 
 // ------------------ AliasStmt ----------------
@@ -16,20 +15,20 @@ type AliasStmt struct {
 	Desc CommentGroupExpr `json:"desc"`
 }
 
-func (o *AliasStmt) stmtNode()     {}
-func (s *AliasStmt) Pos() Position { return s.Lhs.Pos() }
-
-func (o *AliasStmt) WalkForLines(e *Engine) error { return nil }
-func (o *AliasStmt) WalkForLocals(e *Engine) {
-	e.aliases[o.Lhs.Name] = o.Rhs
-}
-
 func NewAliasStmt(desc CommentGroupExpr, lhs IdentExpr, rhs IdentExpr) *AliasStmt {
 	return &AliasStmt{
 		Lhs:  lhs,
 		Rhs:  rhs,
 		Desc: desc,
 	}
+}
+
+func (s *AliasStmt) stmtNode()     {}
+func (s *AliasStmt) Pos() Position { return s.Lhs.Pos() }
+
+func (s *AliasStmt) WalkForLines(e *EngineData) error { return nil }
+func (s *AliasStmt) WalkForLocals(e *EngineData) {
+	e.aliases[s.Lhs.Name] = s.Rhs
 }
 
 // ----------------- AssignStmt ----------------
@@ -40,13 +39,13 @@ type AssignStmt struct {
 	Desc CommentGroupExpr `json:"desc"`
 }
 
-func (o *AssignStmt) stmtNode()     {}
+func (s *AssignStmt) stmtNode()     {}
 func (s *AssignStmt) Pos() Position { return s.Lhs.Pos() }
 
-func (o *AssignStmt) WalkForLines(e *Engine) error { return nil }
-func (o *AssignStmt) WalkForLocals(e *Engine) {
-	e.assigns[o.Lhs.Name] = &o.Rhs
-	o.Rhs.WalkForLocals(e)
+func (s *AssignStmt) WalkForLines(e *EngineData) error { return nil }
+func (s *AssignStmt) WalkForLocals(e *EngineData) {
+	e.assigns[s.Lhs.Name] = &s.Rhs
+	s.Rhs.WalkForLocals(e)
 }
 
 func NewAssignStmt(desc CommentGroupExpr, ident IdentExpr, expr Expr) *AssignStmt {
@@ -64,34 +63,33 @@ type RowStmt struct {
 	Desc CommentGroupExpr `json:"desc"`
 }
 
-func (o *RowStmt) stmtNode()     {}
-func (s *RowStmt) Pos() Position { return s.Row.Stitches[0].Pos() }
-
-func (o *RowStmt) WalkForLines(e *Engine) error {
-	log.Info("In RowStmt#WalkForLines")
-	lc := MakeLineContainer()
-	if err := o.Row.WalkForLines(e, &lc); err != nil {
-		return fmt.Errorf("%w%s", err, util.StackLine())
-	}
-	if !lc.IsEmpty() {
-		startLc, endLc := START_OF_ROW_LC, END_OF_ROW_LC
-		startLc.Desc = o.Desc.TextSlice(e)
-		e.Lines = append(e.Lines, startLc)
-		e.Lines = append(e.Lines, lc)
-		e.Lines = append(e.Lines, endLc)
-	}
-	return nil
-}
-
-func (o *RowStmt) WalkForLocals(e *Engine) {
-	o.Row.WalkForLocals(e)
-}
-
 func NewRowStmt(desc CommentGroupExpr, row RowExpr) *RowStmt {
 	return &RowStmt{
 		Row:  row,
 		Desc: desc,
 	}
+}
+
+func (s *RowStmt) stmtNode()     {}
+func (s *RowStmt) Pos() Position { return s.Row.Stitches[0].Pos() }
+
+func (s *RowStmt) WalkForLines(e *EngineData) error {
+	startLc, endLc := START_OF_ROW_LC, END_OF_ROW_LC
+	startLc.Desc = s.Desc.TextSlice(e)
+	e.Lines = append(e.Lines, startLc)
+	lc := MakeLineContainer()
+	if err := s.Row.WalkForLines(e, &lc); err != nil {
+		return fmt.Errorf("%w%s", err, util.StackLine())
+	}
+	if !lc.isEmpty() {
+		e.Lines = append(e.Lines, lc)
+	}
+	e.Lines = append(e.Lines, endLc)
+	return nil
+}
+
+func (s *RowStmt) WalkForLocals(e *EngineData) {
+	s.Row.WalkForLocals(e)
 }
 
 // ----------------- GroupStmt -----------------
@@ -101,28 +99,28 @@ type GroupStmt struct {
 	Desc  CommentGroupExpr `json:"desc"`
 }
 
-func (o *GroupStmt) stmtNode()     {}
-func (s *GroupStmt) Pos() Position { return s.Group.LBrace }
-
-func (o *GroupStmt) WalkForLines(e *Engine) error {
-	lc := START_OF_GROUP_LC
-	lc.Desc = o.Desc.TextSlice(e)
-	lc.Args = o.Group.Args.TextSlice(e)
-	e.Lines = append(e.Lines, lc)
-	o.Group.WalkForLines(e, &lc)
-	e.Lines = append(e.Lines, END_OF_GROUP_LC)
-	return nil
-}
-
-func (o *GroupStmt) WalkForLocals(e *Engine) {
-	o.Group.WalkForLocals(e)
-}
-
 func NewGroupStmt(desc CommentGroupExpr, group GroupExpr) *GroupStmt {
 	return &GroupStmt{
 		Group: group,
 		Desc:  desc,
 	}
+}
+
+func (s *GroupStmt) stmtNode()     {}
+func (s *GroupStmt) Pos() Position { return s.Group.LBrace }
+
+func (s *GroupStmt) WalkForLines(e *EngineData) error {
+	lc := START_OF_GROUP_LC
+	lc.Desc = s.Desc.TextSlice(e)
+	lc.Args = s.Group.Args.TextSlice(e)
+	e.Lines = append(e.Lines, lc)
+	s.Group.WalkForLines(e, &lc)
+	e.Lines = append(e.Lines, END_OF_GROUP_LC)
+	return nil
+}
+
+func (s *GroupStmt) WalkForLocals(e *EngineData) {
+	s.Group.WalkForLocals(e)
 }
 
 // ----------------- BlockStmt -----------------
@@ -134,34 +132,32 @@ type BlockStmt struct {
 	Desc  CommentGroupExpr `json:"desc"`
 }
 
-func (o *BlockStmt) stmtNode()     {}
-func (o *BlockStmt) Pos() Position { return o.Start }
-
-func (o *BlockStmt) WalkForLines(e *Engine) error {
-	lc := START_OF_BLOCK_LC
-	lc.Desc = o.Desc.TextSlice(e)
-	e.Lines = append(e.Lines, lc)
-	log.Tracef("%s", util.StackLine())
-	for _, subblock := range o.Block {
-		log.Tracef("%#v\n", subblock)
-		subblock.WalkForLines(e)
-	}
-	e.Lines = append(e.Lines, END_OF_BLOCK_LC)
-	return nil
-}
-
-func (o *BlockStmt) WalkForLocals(e *Engine) {
-	for _, subblock := range o.Block {
-		subblock.WalkForLocals(e)
-	}
-}
-
 func NewBlockStmt() *BlockStmt {
 	return &BlockStmt{
 		Block: make([]Stmt, 0),
 		Start: Position{Line: 0, Column: 1},
 		End:   NO_POS,
 		Desc:  CommentGroupExpr{},
+	}
+}
+
+func (s *BlockStmt) stmtNode()     {}
+func (s *BlockStmt) Pos() Position { return s.Start }
+
+func (s *BlockStmt) WalkForLines(e *EngineData) error {
+	lc := START_OF_BLOCK_LC
+	lc.Desc = s.Desc.TextSlice(e)
+	e.Lines = append(e.Lines, lc)
+	for _, subblock := range s.Block {
+		subblock.WalkForLines(e)
+	}
+	e.Lines = append(e.Lines, END_OF_BLOCK_LC)
+	return nil
+}
+
+func (s *BlockStmt) WalkForLocals(e *EngineData) {
+	for _, subblock := range s.Block {
+		subblock.WalkForLocals(e)
 	}
 }
 
@@ -173,9 +169,9 @@ type ImportStmt struct {
 	CommentExpr *CommentGroupExpr `json:"comment"`
 }
 
-func (o *ImportStmt) stmtNode()     {}
-func (o *ImportStmt) Pos() Position { return o.Name.Pos() }
+func (s *ImportStmt) stmtNode()     {}
+func (s *ImportStmt) Pos() Position { return s.Name.Pos() }
 
-func (o *ImportStmt) WalkForLocals(e *Engine) {
+func (s *ImportStmt) WalkForLocals(e *EngineData) {
 	// TODO:
 }

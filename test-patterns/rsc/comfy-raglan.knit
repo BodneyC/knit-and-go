@@ -44,14 +44,20 @@ body = {
 
 sleeve = {
   pu(sleeve)
+
+  ; Knit to the end of the round
+  ;  repeat this for sixteen inches
   { K(*) }(16")
 
   { K P }(2")
 }
 
-; Now it's time to do the yolk
+; We are about to do the yolk
+; The yolk requires a load of fun stuff
 yolk
+
 ; Now it's time to do the body
 body
+
 ; Now it's time to do the sleeves
 sleeve(2)

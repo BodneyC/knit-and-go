@@ -13,14 +13,14 @@ type IOform int
 const (
 	ILLEGAL_IOF IOform = iota
 	KNIT_IOF
-	JSON_IOF
+	AST_IOF
 )
 
 func toIOform(s string) (IOform, error) {
 	if strings.EqualFold(s, "knit") {
 		return KNIT_IOF, nil
-	} else if strings.EqualFold(s, "json") {
-		return JSON_IOF, nil
+	} else if strings.EqualFold(s, "ast") {
+		return AST_IOF, nil
 	} else {
 		return ILLEGAL_IOF, fmt.Errorf("Unknown IOform: %s%s", s, StackLine())
 	}
@@ -48,8 +48,7 @@ func ParseCli() (*CliArgs, error) {
 				Destination: &informStr,
 			},
 			&cli.StringFlag{
-				Name:        "json",
-				Aliases:     []string{"j"},
+				Name:        "ast",
 				Value:       "",
 				Usage:       "Write parsed .knit to this file as JSON",
 				Destination: &args.Jsonfile,
