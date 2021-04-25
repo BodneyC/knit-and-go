@@ -74,7 +74,7 @@ func (o *CommentGroupExpr) TextSlice(e *EngineData) []string {
 	return lines
 }
 
-// ----------------- IdentExprifier ----------------
+// ----------------- IdentExpr ----------------
 
 type IdentExpr struct {
 	At   Position `json:"at"`

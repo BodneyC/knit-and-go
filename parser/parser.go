@@ -259,7 +259,7 @@ func (p *Parser) parseAlias(desc ast.CommentGroupExpr, lhs ast.IdentExpr) (ast.S
 
 // ------------------ Lines ------------------
 
-func (p *Parser) parseIdentExprifierLine(desc ast.CommentGroupExpr, firstToken TokenContainer) (ast.Stmt, error) {
+func (p *Parser) parseIdentExprLine(desc ast.CommentGroupExpr, firstToken TokenContainer) (ast.Stmt, error) {
 	ident := ast.MakeIdentExpr(firstToken)
 
 	tp := p.peekIgnoreWs()
@@ -333,7 +333,7 @@ func (p *Parser) parseLine(desc ast.CommentGroupExpr, firstToken TokenContainer)
 
 	switch firstToken.Tok {
 	case IDENTIFIER_T:
-		s, err := p.parseIdentExprifierLine(desc, firstToken)
+		s, err := p.parseIdentExprLine(desc, firstToken)
 		if err != nil {
 			err = fmt.Errorf("%w%s", err, StackLine())
 		}
