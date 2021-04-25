@@ -76,8 +76,7 @@ func ParseCli() (*CliArgs, error) {
 		},
 		Action: func(c *cli.Context) error {
 			if c.NArg() != 1 {
-				fmt.Println("No input files given")
-				return fmt.Errorf("%s", StackLine())
+				return fmt.Errorf("No input files given%s", StackLine())
 			}
 
 			args.Infile = c.Args().Get(0)

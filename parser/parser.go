@@ -98,7 +98,6 @@ func (p *Parser) parseRowExpr(firstToken TokenContainer, first bool) (*ast.RowEx
 			var args ast.Brackets
 			var err error
 			if p.peekIgnoreWs().Tok == LEFT_PAREN_T {
-				// fmt.Printf("Found right brace\n  token {%#v}, peeked {%#v}, braced {%t}\n\n", t, p.peekIgnoreWs(), braced)
 				p.nextIgnoreWs()
 				args, err = p.parseBrackets()
 				if err != nil {

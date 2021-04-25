@@ -57,7 +57,7 @@ func configureLogger(logLevelCli string, timings bool) error {
 func main() {
 	args, err := util.ParseCli()
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Fatal("Error")
+		log.Fatal(err)
 	}
 
 	if err := configureLogger(args.LogLevel, args.LogTimer); err != nil {
