@@ -22,6 +22,7 @@ const (
 
 type Screen struct {
 	engine *ast.Engine
+	keymapsPar,
 	blockDescPar,
 	groupDescPar,
 	rowDescPar,
@@ -61,8 +62,22 @@ func prettyRowWithHighlight(state *ast.CurrentState) string {
 }
 
 func (s *Screen) paragraphSetup() {
+	s.keymapsPar = w.NewParagraph()
+	s.keymapsPar.Title = "Keymaps"
+	s.keymapsPar.TitleStyle.Modifier = ui.ModifierBold
+	s.keymapsPar.Text = `q: quit
+j: next
+k: previous
+l: right
+h: left
+s: stitch up
+S: stitch down
+r: row up
+R: row down
+x: ctr reset`
+
 	s.blockDescPar = w.NewParagraph()
-	s.blockDescPar.Title = " Description "
+	s.blockDescPar.Title = "Descriptions"
 	s.blockDescPar.TitleStyle.Modifier = ui.ModifierBold
 	s.blockDescPar.BorderBottom = false
 
@@ -78,19 +93,19 @@ func (s *Screen) paragraphSetup() {
 	s.rowDescPar.BorderTop = false
 
 	s.rowCtrPar = w.NewParagraph()
-	s.rowCtrPar.Title = " Row counter "
+	s.rowCtrPar.Title = "Row counter"
 	s.rowCtrPar.TitleStyle.Modifier = ui.ModifierBold
 
 	s.stitchCtrPar = w.NewParagraph()
-	s.stitchCtrPar.Title = " Stitch-phrase counter "
+	s.stitchCtrPar.Title = "Stitch counter"
 	s.stitchCtrPar.TitleStyle.Modifier = ui.ModifierBold
 
 	s.stateCtrPar = w.NewParagraph()
-	s.stateCtrPar.Title = " State counter "
+	s.stateCtrPar.Title = "Page counter"
 	s.stateCtrPar.TitleStyle.Modifier = ui.ModifierBold
 
 	s.currentRowPar = w.NewParagraph()
-	s.currentRowPar.Title = " Current row "
+	s.currentRowPar.Title = "Current row"
 	s.currentRowPar.TitleStyle.Modifier = ui.ModifierBold
 	s.currentRowPar.BorderBottom = false
 
@@ -100,24 +115,18 @@ func (s *Screen) paragraphSetup() {
 	s.argsPar.BorderTop = false
 
 	s.nextRow = w.NewParagraph()
-	s.nextRow.Title = " Next row "
+	s.nextRow.Title = "Next row"
 	s.nextRow.TitleStyle.Modifier = ui.ModifierBold
 
 	s.prevRow = w.NewParagraph()
-	s.prevRow.Title = " Previous row "
+	s.prevRow.Title = "Previous row"
 	s.prevRow.TitleStyle.Modifier = ui.ModifierBold
 }
 
 func (s *Screen) setParagraphs(state *ast.CurrentState) error {
-	if len(state.Desc.Block) != 0 {
-		s.blockDescPar.Text = state.Desc.Block
-	}
-	if len(state.Desc.Group) != 0 {
-		s.groupDescPar.Text = state.Desc.Group
-	}
-	if len(state.Desc.Row) != 0 {
-		s.rowDescPar.Text = state.Desc.Row
-	}
+	s.blockDescPar.Text = state.Desc.Block
+	s.groupDescPar.Text = state.Desc.Group
+	s.rowDescPar.Text = state.Desc.Row
 	s.rowCtrPar.Text = strconv.Itoa(state.Ctr.Row)
 	s.stitchCtrPar.Text = strconv.Itoa(state.Ctr.Stitch)
 	s.stateCtrPar.Text = fmt.Sprintf("%d/%d", s.engine.StateIdx, len(s.engine.States)-1)
@@ -158,12 +167,13 @@ func (s *Screen) Run() error {
 
 	grid.Set(
 		ui.NewRow(0.5,
-			ui.NewCol(1.0,
+			ui.NewCol(0.8,
 				// Descriptions
 				ui.NewRow(0.4, s.blockDescPar),
 				ui.NewRow(0.3, s.groupDescPar),
 				ui.NewRow(0.3, s.rowDescPar),
 			),
+			ui.NewCol(0.2, s.keymapsPar),
 		),
 		ui.NewRow(0.4,
 			ui.NewCol(1.0,
@@ -199,7 +209,7 @@ func (s *Screen) Run() error {
 
 		case "l", "<Right>":
 			if len(state.Lc.Row) > state.Ctr.StitchPhrase+1 {
-				
+
 				state.Ctr.StitchPhrase += 1
 			}
 

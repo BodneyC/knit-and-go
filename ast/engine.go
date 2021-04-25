@@ -245,7 +245,6 @@ func (e *Engine) FormStates() {
 			}
 			state.NestedGroupCtr += 1
 		} else if lc.rowIsEqual(END_OF_GROUP_LC) {
-			state.Desc.Group = ""
 			state.NestedGroupCtr -= 1
 			log.WithField("groupCtr", state.NestedGroupCtr).Trace("[Engine.FormStates] ", strings.Repeat("  ", state.NestedGroupCtr), "End of group")
 		} else if lc.rowIsEqual(START_OF_ROW_LC) {
@@ -258,7 +257,6 @@ func (e *Engine) FormStates() {
 			}
 			state.NestedRowCtr += 1
 		} else if lc.rowIsEqual(END_OF_ROW_LC) {
-			state.Desc.Row = ""
 			state.NestedRowCtr -= 1
 			log.WithField("rowCtr", state.NestedRowCtr).Trace("[Engine.FormStates] ", strings.Repeat("  ", state.NestedRowCtr), "End of row")
 		} else {

@@ -135,14 +135,12 @@ func main() {
 		panic(err)
 	}
 
-	// engineData.PrintLines()
-
 	log.Info("Creating engine from data")
-	e := ast.MakeEngine(engineData)
-	e.FormStates()
+	engine := ast.MakeEngine(engineData)
+	engine.FormStates()
 
 	// e.PrintEngine()
 
-	tui := tui.NewScreen(&e)
+	tui := tui.NewScreen(&engine)
 	tui.Run()
 }
