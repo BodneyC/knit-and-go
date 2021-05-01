@@ -1,8 +1,10 @@
 package ast
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -183,14 +185,45 @@ type Engine struct {
 	States     []CurrentState
 	StateIdx   int
 	engineData *EngineData
+	StatesFile string
 }
 
-func MakeEngine(e *EngineData) Engine {
+func MakeEngine(e *EngineData, s string) Engine {
 	return Engine{
 		States:     make([]CurrentState, 0),
 		StateIdx:   0,
 		engineData: e,
+		StatesFile: s,
 	}
+}
+
+func MakeEngineFromStatesFile(StatesFile string) (Engine, error) {
+	var engine Engine
+	statesJson, err := ioutil.ReadFile(StatesFile)
+	if err != nil {
+		return engine, err
+	}
+	err = json.Unmarshal([]byte(statesJson), &engine)
+	if err != nil {
+		return engine, err
+	}
+	engine.StatesFile = StatesFile
+	return engine, err
+}
+
+func (e *Engine) WriteEngine() error {
+	if e.StatesFile == "" {
+		tmpFile, err := ioutil.TempFile(".", "states.*.json")
+		if err != nil {
+			return err
+		}
+		e.StatesFile = tmpFile.Name()
+	}
+	engineJson, err := json.MarshalIndent(e, "", "  ")
+	if err == nil {
+		err = ioutil.WriteFile(e.StatesFile, engineJson, 0644)
+	}
+	return err
 }
 
 func (e *Engine) PrevState() *CurrentState {

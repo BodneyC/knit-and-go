@@ -109,18 +109,46 @@ func main() {
 		p = parser.NewParserFromBlockStmt(rootBlockStmt)
 	}
 
-	if args.Jsonfile != "" {
-		log.Info("Marshalling...")
-		rootJson, err := json.MarshalIndent(p.Root, "", "  ")
+	var engine ast.Engine
+	if args.Inform == util.STATES_IOF {
+		engine, err = ast.MakeEngineFromStatesFile(args.StatesFile)
 		if err != nil {
-			panic(err)
+			log.Fatalf("Error during walk for locals %#v", err)
 		}
-		log.Info("Marshalling complete")
-		log.WithField("outfile", args.Jsonfile).Info("Writing to file")
-		if err := ioutil.WriteFile(args.Jsonfile, rootJson, 0644); err != nil {
-			log.Error("Failed to write to root.json", err)
+	} else {
+		if args.AstFile != "" {
+			log.Info("Marshalling...")
+			rootJson, err := json.MarshalIndent(p.Root, "", "  ")
+			if err != nil {
+				panic(err)
+			}
+			log.Info("Marshalling complete")
+			log.WithField("astfile", args.AstFile).Info("Writing to file")
+			if err := ioutil.WriteFile(args.AstFile, rootJson, 0644); err != nil {
+				log.Error("Failed to write to root.json", err)
+			}
+			log.WithField("astfile", args.AstFile).Info("File written")
 		}
-		log.WithField("outfile", args.Jsonfile).Info("File written")
+
+		log.Info("Creating engine data")
+		engineData := ast.NewEngineData()
+		p.WalkForLocals(engineData)
+		if err := p.WalkForLines(engineData); err != nil {
+			log.Fatalf("Error during walk for locals %#v", err)
+		}
+
+		log.Info("Creating engine from data")
+		engine = ast.MakeEngine(engineData, args.StatesFile)
+		engine.FormStates()
+
+		if args.StatesFile != "" {
+			log.WithField("statesfile", args.StatesFile).Info("Writing to file")
+			err = engine.WriteEngine()
+			if err != nil {
+				log.WithField("statesfile", args.StatesFile).Fatal("Could not write file")
+			}
+			log.WithField("statesfile", args.StatesFile).Info("File written")
+		}
 	}
 
 	if args.NoRun {
@@ -128,19 +156,10 @@ func main() {
 		os.Exit(SUCCESS_EX)
 	}
 
-	log.Info("Creating engine data")
-	engineData := ast.NewEngineData()
-	p.WalkForLocals(engineData)
-	if err := p.WalkForLines(engineData); err != nil {
-		panic(err)
-	}
-
-	log.Info("Creating engine from data")
-	engine := ast.MakeEngine(engineData)
-	engine.FormStates()
-
-	// e.PrintEngine()
-
+	log.Info("Running TUI")
 	tui := tui.NewScreen(&engine)
-	tui.Run()
+	logs, err := tui.Run()
+	logs.Call()
+
+	log.Info("Knit-and-go completed successfully")
 }

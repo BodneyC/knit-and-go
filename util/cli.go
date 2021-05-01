@@ -14,6 +14,7 @@ const (
 	ILLEGAL_IOF IOform = iota
 	KNIT_IOF
 	AST_IOF
+	STATES_IOF
 )
 
 func toIOform(s string) (IOform, error) {
@@ -21,24 +22,29 @@ func toIOform(s string) (IOform, error) {
 		return KNIT_IOF, nil
 	} else if strings.EqualFold(s, "ast") {
 		return AST_IOF, nil
+	} else if strings.EqualFold(s, "states") {
+		return STATES_IOF, nil
 	} else {
 		return ILLEGAL_IOF, fmt.Errorf("Unknown IOform: %s%s", s, StackLine())
 	}
 }
 
 type CliArgs struct {
-	Inform   IOform
-	Infile   string
-	Jsonfile string
-	NoRun    bool
-	LogLevel string
-	LogTimer bool
+	Inform     IOform
+	Infile     string
+	AstFile    string
+	StatesFile string
+	NoRun      bool
+	LogLevel   string
+	LogTimer   bool
 }
 
 func ParseCli() (*CliArgs, error) {
 	args := &CliArgs{}
 	var informStr string
 	app := &cli.App{
+    Name: "Knit and Go",
+    Usage: "Run a knitting pattern in a TUI",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "inform",
@@ -51,7 +57,13 @@ func ParseCli() (*CliArgs, error) {
 				Name:        "ast",
 				Value:       "",
 				Usage:       "Write parsed .knit to this file as JSON",
-				Destination: &args.Jsonfile,
+				Destination: &args.AstFile,
+			},
+			&cli.StringFlag{
+				Name:        "states",
+				Value:       "",
+				Usage:       "Write knit program states to this file as JSON",
+				Destination: &args.StatesFile,
 			},
 			&cli.BoolFlag{
 				Name:        "no-run",
@@ -84,6 +96,10 @@ func ParseCli() (*CliArgs, error) {
 			var err error
 			if args.Inform, err = toIOform(informStr); err != nil {
 				return fmt.Errorf("%w%s", err, StackLine())
+			}
+
+			if args.Inform == STATES_IOF && args.StatesFile == "" {
+				args.StatesFile = args.Infile
 			}
 
 			return nil

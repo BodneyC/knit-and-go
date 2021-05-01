@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/bodneyc/knit-and-go/ast"
+	"github.com/bodneyc/knit-and-go/util"
 
 	ui "github.com/gizak/termui/v3"
 	w "github.com/gizak/termui/v3/widgets"
@@ -74,7 +75,8 @@ s: stitch up
 S: stitch down
 r: row up
 R: row down
-x: ctr reset`
+x: ctr reset
+^s: save`
 
 	s.blockDescPar = w.NewParagraph()
 	s.blockDescPar.Title = "Descriptions"
@@ -147,7 +149,7 @@ func (s *Screen) setParagraphs(state *ast.CurrentState) error {
 	return nil
 }
 
-func (s *Screen) Run() error {
+func (s *Screen) Run() (*util.LogrusCalls, error) {
 	if err := ui.Init(); err != nil {
 		log.Fatalf("Failed to initialize termui: %v", err)
 	}
@@ -155,7 +157,7 @@ func (s *Screen) Run() error {
 
 	s.paragraphSetup()
 
-	state := &s.engine.States[0]
+	state := &s.engine.States[s.engine.StateIdx]
 	s.setParagraphs(state)
 
 	width, height := ui.TerminalDimensions()
@@ -194,53 +196,129 @@ func (s *Screen) Run() error {
 
 	ui.Render(grid)
 
+	logCalls := util.NewLogrusCalls()
+
 	events := ui.PollEvents()
 	for {
 		e := <-events
 		switch e.ID {
 		case "q", "<C-c>":
-			return nil
+			return logCalls, nil
 
 		case "n", "j", "<Down>":
 			state = s.engine.NextState()
+			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+				log.WithField("state", s.engine.StateIdx),
+				"Moved to next state",
+			))
 
 		case "p", "N", "k", "<Up>":
 			state = s.engine.PrevState()
+			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+				log.WithField("state", s.engine.StateIdx),
+				"Moved to prev state",
+			))
+
+		case "<C-s>":
+			if err := s.engine.WriteEngine(); err != nil {
+				return logCalls, err
+			}
+			logCalls.Info = append(logCalls.Info, util.MakeLogrusCall(
+				log.WithField("statesfile", s.engine.StatesFile),
+				"States saved",
+			))
 
 		case "l", "<Right>":
 			if len(state.Lc.Row) > state.Ctr.StitchPhrase+1 {
-
 				state.Ctr.StitchPhrase += 1
+				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+					log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.StitchPhrase),
+					"Moved to right stitch",
+				))
+			} else {
+				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+					log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.StitchPhrase),
+					"Already at rightmost stitch",
+				))
 			}
 
 		case "h", "<Left>":
 			if state.Ctr.StitchPhrase-1 >= 0 {
 				state.Ctr.StitchPhrase -= 1
+				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+					log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.StitchPhrase),
+					"Moved to left stitch",
+				))
+			} else {
+				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+					log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.StitchPhrase),
+					"Already at leftmost stitch",
+				))
 			}
 
 		case "s":
 			state.Ctr.Stitch += 1
+			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+				log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.Stitch),
+				"Increased stitch",
+			))
 
 		case "S":
 			if state.Ctr.Stitch-1 >= 0 {
 				state.Ctr.Stitch -= 1
+				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+					log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.Stitch),
+					"Decreased stitch counter",
+				))
+			} else {
+				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+					log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.Stitch),
+					"Cannot decrease stitch counter further",
+				))
 			}
 
 		case "r":
 			state.Ctr.Row += 1
+			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+				log.WithField("row", s.engine.States[s.engine.StateIdx].Ctr.Row),
+				"Increased row counter",
+			))
 
 		case "R":
 			if state.Ctr.Row-1 >= 0 {
 				state.Ctr.Row -= 1
+				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+					log.WithField("row", s.engine.States[s.engine.StateIdx].Ctr.Row),
+					"Decreased row counter",
+				))
+			} else {
+				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+					log.WithField("row", s.engine.States[s.engine.StateIdx].Ctr.Row),
+					"Cannot decrease row counter further",
+				))
 			}
 
 		case "x":
 			state.Ctr.Stitch = 0
 			state.Ctr.Row = 0
+			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+				log.WithFields(log.Fields{
+					"row": s.engine.States[s.engine.StateIdx].Ctr.Row,
+					"stitch": s.engine.States[s.engine.StateIdx].Ctr.Stitch,
+				}),
+				"Reset counters",
+			))
 
 		case "<Resize>":
 			payload := e.Payload.(ui.Resize)
 			grid.SetRect(0, 0, payload.Width, payload.Height)
+			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
+				log.WithFields(log.Fields{
+					"width": payload.Width,
+					"height": payload.Height,
+				}),
+				"Screen resize",
+			))
 			ui.Clear()
 			ui.Render(grid)
 		}
