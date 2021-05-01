@@ -217,6 +217,7 @@ func (e *Engine) WriteEngine() error {
 		if err != nil {
 			return err
 		}
+		defer tmpFile.Close()
 		e.StatesFile = tmpFile.Name()
 	}
 	engineJson, err := json.MarshalIndent(e, "", "  ")

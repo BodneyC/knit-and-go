@@ -1,6 +1,21 @@
-<!-- markdownlint-disable MD013 -->
+<!-- markdownlint-disable MD013 MD033 -->
 
 # Knit and Go
+
+1. [What and Why](#what-and-why)
+2. [How to Download and Run](#how-to-download-and-run)
+3. [How to use](#how-to-use)
+   1. [Inputs and Outputs](#inputs-and-outputs)
+   2. [The TUI](#the-tui)
+   3. [CLI Options](#cli-options)
+4. [Knit Language Specification](#knit-language-specification)
+   1. [Aliases](#aliases)
+   2. [Assignments](#assignments)
+   3. [Rows](#rows)
+   4. [Groups](#groups)
+   5. [Comments](#comments)
+
+## What and Why
 
 I took up knitting around Christmas-time (2020) and really took to it quite quickly. Now, any time I'm not spending on one of the machines in front of me as I type, I am knitting something.
 
@@ -8,19 +23,19 @@ One issue that I had fairly frequently to begin with, and though it's no longer 
 
 I _can_ read them quite happily, but I often finding myself re-writing them in a sort of shorthand, the shorthand which inspired this project.
 
-As an example, you may find this in a regular ol' knitting pattern:
+As an example, you may find this in a regular ol' knitting pattern
 
-_Now that we've reached the eighth row, you'll find that although the pattern for the previous rows has been mainly knit stitches, you'll find that this row has many more purl stitches - though this may not be clear as to the "why" of the matter it will soon become apparent, you'll see the pattern unfold as we continue through the pattern and the bumps will make themselves clear; ergo, we will purl the next two stitches and continue with the knit we had before until the twelve stitch of this particular row_
+<p align="center"><em>Now that we've reached the eighth row, you'll find that although the pattern for the previous rows has been mainly knit stitches, you'll find that this row has many more purl stitches - though this may not be clear as to the "why" of the matter it will soon become apparent, you'll see the pattern unfold as we continue through the pattern and the bumps will make themselves clear; ergo, we will purl the next two stitches and continue with the knit we had before until the twelve stitch of this particular row</em></p>
 
 and by this, they mean...
 
-_purl two_
+<p align="center"><em>purl two</em></p>
 
 which can be condensed to `p(2)` in my mind.
 
 Clearly this is a bit of an exaggeration, but the principle applies far and wide: an 8-point font block of text taking up half the page is not clear for anyone, surely, I guess it may just be me... but then again I wrote this project for me... so I'm happy either way.
 
-## How to Use
+## How to Download and Run
 
 This requires a couple of things. I'm hoping (if anyone has any sort of interest in the project) to make this more accessible, i.e. compiled to a native Windows binary, point and click kind of thing.
 
@@ -34,20 +49,71 @@ cd knit-and-go
 go run ./main.go ./test-patterns/rsc/simple.knit
 ```
 
+or,
+
+```bash
+go install github.com/BodneyC/knit-and-go
+knit-and-go ./test-patterns/rsc/simple.knit
+```
+
 Or whatever other pattern file you wish to use (there are some examples in `./test-patterns/rsc`).
 
-## Screenshot
+## How to Use
+
+### Inputs and Outputs
+
+There are a few different components to this software, which can be best described by the input/output formats.
+
+#### Knit
+
+The standard input to the program is the `.knit` file format, this is described below in the [Knit Language Specification](#knit-language-specification).
+
+No `--inform` option need to passed if you are passing in a `knit` file.
+
+#### AST
+
+`knit` files are then parsed and an AST is formed. By passing the `--ast` option followed by a filepath, this ast will be marshalled to JSON and written to the given file.
+
+If you wish to edit the AST directly and pass the edited version back to the program, you should pass `--inform ast` along with the input AST file.
+
+Ast this file is a JSON file, the expected suffix is `.json`. However, for a little extra detail I've been using `<name of pattern>.ast.json`.
+
+#### States
+
+Once the AST is formed, the states of the program are formed, these are equivalent to the "pages" of the user interface (see [The TUI](#the-tui)).
+
+There are a number of reasons you may wish to write these states to disk, the main one being that if you're part way through a program's run and you have counters set in each page and you want to return to this later, then you need some way to remember this.
+
+If you're passing in a `knit` or an AST and wish to save the states, pass the `--states` option followed by a filepath.
+
+If you failed to pass the `--states` option but have been working through a pattern and wish to save your progress, pressing `ctrl+s` in the TUI will create a temporary file for you to use, please see the logs of the program for the filename.
+
+### The TUI
 
 ![knit-and-go](./rsc/knit-and-go.png)
 
-## CLI
+| Key | Action                                   |
+| :-- | :--                                      |
+| `q`   | Quit the TUI                             |
+| `j`   | Move to the next state (row)             |
+| `k`   | Move to the previous state (row)         |
+| `l`   | Move right across the row definition     |
+| `h`   | Move left across the row definition      |
+| `s`   | Increase the stitch counter              |
+| `S`   | Decrement the stitch counter             |
+| `r`   | Increase the row counter                 |
+| `R`   | Decrement the row counter                |
+| `x`   | Reset the row and stitch counters (to 0) |
+| `^s`  | Save to the `states` file or a temp file |
+
+### CLI Options
 
 There are a number of flags to be used, these can be revealed with the `--help` option, for example:
 
 ```bash
 $ go run ./main.go --help
 NAME:
-   main - A new cli application
+   Knit and Go - Run a knitting pattern in a TUI
 
 USAGE:
    main [global options] command [command options] [arguments...]
@@ -58,6 +124,7 @@ COMMANDS:
 GLOBAL OPTIONS:
    --inform value, --inf value    Input file format (default: "knit")
    --ast value                    Write parsed .knit to this file as JSON
+   --states value                 Write knit program states to this file as JSON
    --no-run, --norun              Prevent the program from running the pattern (default: false)
    --log-level value, --ll value  Log level (error, info, debug, trace, etc.)
    --timer                        Log time since start of program (default: false)
