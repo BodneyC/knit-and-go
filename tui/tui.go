@@ -220,9 +220,7 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 			))
 
 		case "<C-s>":
-			if err := s.engine.WriteEngine(); err != nil {
-				return logCalls, err
-			}
+			s.engine.WriteEngine()
 			logCalls.Info = append(logCalls.Info, util.MakeLogrusCall(
 				log.WithField("statesfile", s.engine.StatesFile),
 				"States saved",

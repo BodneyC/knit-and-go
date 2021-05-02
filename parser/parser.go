@@ -364,7 +364,15 @@ func (p *Parser) Parse() error {
 			return nil
 		}
 
-		if t.Tok == WHITE_SPACE_T|NEW_LINE_T {
+		if t.Tok == NEXT_SOURCE_T {
+			log.Info("Moving to next source")
+			if t := p.peek(); t.Tok == COMMENT_T {
+				p.Root.Desc = p.parseCommentExpr(p.next())
+			}
+			continue
+		}
+
+		if t.Tok == WHITE_SPACE_T || t.Tok == NEW_LINE_T {
 			log.Trace("Line beginning with whitespace at ", t.Pos.Str())
 			continue
 		}

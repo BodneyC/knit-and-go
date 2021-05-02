@@ -3,7 +3,8 @@ package lexer
 import (
 	"bufio"
 	"bytes"
-	"io"
+	"fmt"
+	"os"
 
 	// "strings"
 	"unicode"
@@ -12,19 +13,59 @@ import (
 )
 
 type Lexer struct {
+	infiles    []string
+	inputIdx   int
+	file       *os.File
 	reader     *bufio.Reader
 	pos        Position
 	override   bool
 	overridden TokenContainer
 }
 
-func NewLexer(reader io.Reader) *Lexer {
-	return &Lexer{
-		reader:     bufio.NewReader(reader),
+func NewLexer(infiles []string) (*Lexer, error) {
+	l := &Lexer{
+		infiles:    infiles,
+		inputIdx:   0,
+		file:       nil,
+		reader:     nil,
 		pos:        Position{Line: 1, Column: 0},
 		override:   false,
 		overridden: TokenContainer{},
 	}
+	suc, err := l.readNextInput()
+	if err != nil {
+		return nil, err
+	}
+	if !suc {
+		return nil, fmt.Errorf("No further input files")
+	}
+	return l, nil
+}
+
+func (l *Lexer) readNextInput() (bool, error) {
+	if len(l.infiles) == l.inputIdx {
+		return false, nil
+	}
+
+	if l.file != nil {
+		if err := l.file.Close(); err != nil {
+			return false, err
+		}
+	}
+
+	log.WithField("infile", l.infiles[l.inputIdx]).Info("Attempting to open input")
+
+	file, err := os.Open(l.infiles[l.inputIdx])
+	if err != nil {
+		return false, err
+	}
+
+	l.file = file
+	l.reader = bufio.NewReader(file)
+
+	l.inputIdx++
+
+	return true, nil
 }
 
 func (l *Lexer) Peek() TokenContainer {
@@ -46,12 +87,20 @@ func (l *Lexer) Next() TokenContainer {
 	pos := l.pos
 
 	if r == EOF_LITERAL {
-		log.WithField("literal", "\":EOF:\"").Trace("[Lexer.Lex]")
-		return NewTokenContainer(pos, EOF_T, ":EOF:")
+		log.WithField("literal", "\":EOF:\"").Trace("[Lexer.Next]")
+		b, err := l.readNextInput()
+		if err != nil {
+			log.Warn("Failed to open next input file", err)
+		}
+		if b {
+			return NewTokenContainer(pos, NEXT_SOURCE_T, ":NEXT_SOURCE:")
+		} else {
+			return NewTokenContainer(pos, EOF_T, ":EOF:")
+		}
 	}
 
 	if r == COMMENT_LITERAL {
-		log.WithField("literal", ";" ).Trace("[Lexer.Lex]")
+		log.WithField("literal", ";").Trace("[Lexer.Next]")
 		tok, str := l.lexComment()
 		return NewTokenContainer(pos, tok, str)
 	}
@@ -66,7 +115,7 @@ func (l *Lexer) Next() TokenContainer {
 
 	// isLetter, then isIdentifier
 	if unicode.IsLetter(r) {
-		log.WithField("literal", "[A-Za-z]" ).Trace("[Lexer.Lex]")
+		log.WithField("literal", "[A-Za-z]").Trace("[Lexer.Next]")
 		tok, str := l.lexIdentifier(r)
 		return NewTokenContainer(pos, tok, str)
 	}

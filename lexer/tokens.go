@@ -49,6 +49,7 @@ type Token int
 const (
 	ILLEGAL_T Token = iota
 	EOF_T
+	NEXT_SOURCE_T
 	WHITE_SPACE_T
 	NEW_LINE_T
 

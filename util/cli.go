@@ -31,7 +31,7 @@ func toIOform(s string) (IOform, error) {
 
 type CliArgs struct {
 	Inform     IOform
-	Infile     string
+	Infiles    []string
 	AstFile    string
 	StatesFile string
 	NoRun      bool
@@ -43,8 +43,8 @@ func ParseCli() (*CliArgs, error) {
 	args := &CliArgs{}
 	var informStr string
 	app := &cli.App{
-    Name: "Knit and Go",
-    Usage: "Run a knitting pattern in a TUI",
+		Name:  "Knit and Go",
+		Usage: "Run a knitting pattern in a TUI",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "inform",
@@ -87,19 +87,28 @@ func ParseCli() (*CliArgs, error) {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			if c.NArg() != 1 {
+			if c.NArg() < 1 {
 				return fmt.Errorf("No input files given%s", StackLine())
 			}
 
-			args.Infile = c.Args().Get(0)
+			args.Infiles = c.Args().Slice()
 
 			var err error
 			if args.Inform, err = toIOform(informStr); err != nil {
 				return fmt.Errorf("%w%s", err, StackLine())
 			}
 
-			if args.Inform == STATES_IOF && args.StatesFile == "" {
-				args.StatesFile = args.Infile
+			if args.Inform == AST_IOF && c.NArg() != 1 {
+				return fmt.Errorf("Only one input file for inform ast%s", StackLine())
+			}
+
+			if args.Inform == STATES_IOF {
+				if c.NArg() != 1 {
+					return fmt.Errorf("Only one input file for inform states%s", StackLine())
+				}
+				if args.StatesFile == "" {
+					args.StatesFile = args.Infiles[0]
+				}
 			}
 
 			return nil
@@ -110,7 +119,7 @@ func ParseCli() (*CliArgs, error) {
 		return nil, err
 	}
 
-	if args.Infile == "" { // Help was ran but didn't exit for some reason
+	if len(args.Infiles) == 0 { // Help was ran but didn't exit for some reason
 		os.Exit(0)
 	}
 

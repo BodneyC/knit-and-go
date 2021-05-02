@@ -1,0 +1,11 @@
+con := cast-on
+cof := cast-off
+use := needle-selection
+m := marker
+pm := place-marker
+hold := put-on-holder
+pu := pick-up
+
+K := knit
+P := purl
+Kfb := knit-forward-and-back

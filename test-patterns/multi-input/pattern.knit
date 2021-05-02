@@ -1,0 +1,51 @@
+; comfy-raglan
+;  https://therunningyarn.wordpress.com/2008/04/03/comfy-raglan-sweater-free-pattern/amp/
+
+SOME-ROW = { K(39) pm K(9) pm }
+
+yolk = {
+  use(5.0mm, circular)
+  con(96)
+
+  P SOME-ROW(2) K
+
+  {
+    { Kfb K(-m) Kfb slip(m) }(*)
+    K(*)
+    K(*)
+  }(23)
+
+  {
+    K(*)
+  }(2)
+
+  K(-m) hold(m) K(-m) hold(m)
+
+}
+
+body = {
+  { K(*) }(19")
+
+  { K P }(2")
+  cof(*)
+}
+
+sleeve = {
+  pu(sleeve)
+
+  ; Knit to the end of the round
+  ;  repeat this for sixteen inches
+  { K(*) }(16")
+
+  { K P }(2")
+}
+
+; We are about to do the yolk
+; The yolk requires a load of fun stuff
+yolk
+
+; Now it's time to do the body
+body
+
+; Now it's time to do the sleeves
+sleeve(2)

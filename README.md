@@ -33,11 +33,11 @@ and by this, they mean...
 
 which can be condensed to `p(2)` in my mind.
 
-Clearly this is a bit of an exaggeration, but the principle applies far and wide: an 8-point font block of text taking up half the page is not clear for anyone, surely, I guess it may just be me... but then again I wrote this project for me... so I'm happy either way.
+Clearly this is a bit of an exaggeration, but the principle applies far and wide: an 8-point-font block of text taking up half the page is not clear for anyone, surely... I guess it may just be me... but then again I wrote this project for me... so I'm happy either way.
 
 ## How to Download and Run
 
-This requires a couple of things. I'm hoping (if anyone has any sort of interest in the project) to make this more accessible, i.e. compiled to a native Windows binary, point and click kind of thing.
+This requires a couple of things. I'm hoping (if anyone has any sort of interest in the project) to make this more accessible, i.e. compiled to a native Windows binary, point and click kind of thing (assuming [termui](https://github.com/gizak/termui) works on Windows).
 
 But as it stands, [`git`](https://git-scm.com/) and [Golang](https://golang.org/) are required, one is used to get a copy of the code and the other is used to compile and run it respectively.
 
@@ -56,13 +56,15 @@ go install github.com/BodneyC/knit-and-go
 knit-and-go ./test-patterns/rsc/simple.knit
 ```
 
-Or whatever other pattern file you wish to use (there are some examples in `./test-patterns/rsc`).
+With the last phrase being whatever other pattern file you wish to use (there are some examples in `./test-patterns`).
 
 ## How to Use
 
+There are a few different components to this software, this section hopes to elucidate on these different bits.
+
 ### Inputs and Outputs
 
-There are a few different components to this software, which can be best described by the input/output formats.
+The best way to understand Knit and Go is to look at the input and output formats.
 
 #### Knit
 
@@ -76,7 +78,7 @@ No `--inform` option need to passed if you are passing in a `knit` file.
 
 If you wish to edit the AST directly and pass the edited version back to the program, you should pass `--inform ast` along with the input AST file.
 
-Ast this file is a JSON file, the expected suffix is `.json`. However, for a little extra detail I've been using `<name of pattern>.ast.json`.
+As this file is a JSON file, the expected suffix is `.json`. However, for a little extra detail I've been using `<name of pattern>.ast.json` but this (and extensions in general) are optional.
 
 #### States
 
@@ -88,27 +90,41 @@ If you're passing in a `knit` or an AST and wish to save the states, pass the `-
 
 If you failed to pass the `--states` option but have been working through a pattern and wish to save your progress, pressing `ctrl+s` in the TUI will create a temporary file for you to use, please see the logs of the program for the filename.
 
+#### Multiple Input Sources
+
+This is only available for the `knit` inform.
+
+If you have a `.knit` file with all of your common aliases and assignments and don't want to copy and paste them all at the top of a particular pattern you're writing, then you can specify multiple input files.
+
+Say you have aliases in `./test-patterns/multi-input/aliases.knit` and a pattern in `./test-patterns/multi-input/pattern.knit`, you could run:
+
+```bash
+go run ./main.go ./test-patterns/multi-input/{aliases,pattern}.knit
+```
+
+which would run both files through the lexer/parser in the order provided, taking the top comment of the last input as the program's "block comment".
+
 ### The TUI
 
 ![knit-and-go](./rsc/knit-and-go.png)
 
-| Key | Action                                   |
-| :-- | :--                                      |
-| `q`   | Quit the TUI                             |
-| `j`   | Move to the next state (row)             |
-| `k`   | Move to the previous state (row)         |
-| `l`   | Move right across the row definition     |
-| `h`   | Move left across the row definition      |
-| `s`   | Increase the stitch counter              |
-| `S`   | Decrement the stitch counter             |
-| `r`   | Increase the row counter                 |
-| `R`   | Decrement the row counter                |
-| `x`   | Reset the row and stitch counters (to 0) |
-| `^s`  | Save to the `states` file or a temp file |
+| Key  | Action                                   |
+| :--  | :--                                      |
+| `q`  | Quit the TUI                             |
+| `j`  | Move to the next state (row)             |
+| `k`  | Move to the previous state (row)         |
+| `l`  | Move right across the row definition     |
+| `h`  | Move left across the row definition      |
+| `s`  | Increase the stitch counter              |
+| `S`  | Decrement the stitch counter             |
+| `r`  | Increase the row counter                 |
+| `R`  | Decrement the row counter                |
+| `x`  | Reset the row and stitch counters (to 0) |
+| `^s` | Save to the `states` file or a temp file |
 
 ### CLI Options
 
-There are a number of flags to be used, these can be revealed with the `--help` option, for example:
+There are a number of flags which can be used, these can be revealed with the `--help` option, for example:
 
 ```bash
 $ go run ./main.go --help
@@ -145,7 +161,7 @@ and this will run the AST JSON in a little TUI.
 
 ## Knit Language Specification
 
-This is far more "loose" a language than I am used to working with, for the computer-folks out there, no identifiers need to be defined and things that would work as functions to knitters do not need any specification.
+This is far more "loose" a language than I am used to working with, for the computer-folks out there, no identifiers need to be defined and things that would work as functions to knitters may not require any specification.
 
 For example, I could write `stockinette(2")` and knitters would know to continue in [Stockinette](https://www.thesprucecrafts.com/learning-the-stockinette-stitch-2116122) stitch for two inches or so... in the "code" `stockinette` does not need definition and writing a compiler around identifier that could be single stitches, functions, sub-patterns, etc. was quite the challenge.
 
@@ -167,13 +183,13 @@ Once point of note is that the right hand side (RHS) of an assignment cannot con
 kfb := knit-front-and-back
 ```
 
-, but not:
+but not:
 
 ```knit
 kfb := knit front and back
 ```
 
-, this would be a syntax error.
+this would be a syntax error.
 
 ### Assignments
 
@@ -188,7 +204,7 @@ stockinette = {
 }
 ```
 
-, i.e. to knit a row and then purl the next (where the asterisk `*` means "to the end of the row"). This could then be called as:
+i.e. to knit a row and then purl the next (where the asterisk `*` means "to the end of the row"). This could then be called as:
 
 ```knit
 stockinette(5)
@@ -208,7 +224,7 @@ Say you have a simple checkered pattern, two squares along the row, you could wr
 k(12) p(12)
 ```
 
-, which would mean knit twelve then purl twelve for a total row length of twenty-four stitches. And that's the full row.
+which would mean knit twelve then purl twelve for a total row length of twenty-four stitches. And that's the full row.
 
 If you want more than two squares along the row-line, you can just repeat that with a brace-group:
 
