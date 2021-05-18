@@ -84,13 +84,13 @@ func ParseCli() (*CliArgs, error) {
 			&cli.BoolFlag{
 				Name:        "print-engine-data",
 				Value:       false,
-				Usage:       "Log time since start of program",
+				Usage:       "Print engine data used to form states",
 				Destination: &args.PrintEngineData,
 			},
 			&cli.BoolFlag{
 				Name:        "print-states",
 				Value:       false,
-				Usage:       "Log time since start of program",
+				Usage:       "Print engine states used in the TUI",
 				Destination: &args.PrintStates,
 			},
 			&cli.BoolFlag{
