@@ -48,17 +48,14 @@ sleeve = {
   { K(*) }(16")
 
   { K P }(2")
-  {
-    { K P }(12)
-  }(6)
 }
 
 ; We are about to do the yolk
 ; The yolk requires a load of fun stuff
-; yolk
+yolk
 
 ; Now it's time to do the body
-; body
+body
 
 ; Now it's time to do the sleeves
 sleeve(2)
