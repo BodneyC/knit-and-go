@@ -30,13 +30,15 @@ func toIOform(s string) (IOform, error) {
 }
 
 type CliArgs struct {
-	Inform     IOform
-	Infiles    []string
-	AstFile    string
-	StatesFile string
-	NoRun      bool
-	LogLevel   string
-	LogTimer   bool
+	Inform          IOform
+	Infiles         []string
+	AstFile         string
+	StatesFile      string
+	NoRun           bool
+	LogLevel        string
+	LogTimer        bool
+	PrintEngineData bool
+	PrintStates     bool
 }
 
 func ParseCli() (*CliArgs, error) {
@@ -78,6 +80,18 @@ func ParseCli() (*CliArgs, error) {
 				Value:       "",
 				Usage:       "Log level (error, info, debug, trace, etc.)",
 				Destination: &args.LogLevel,
+			},
+			&cli.BoolFlag{
+				Name:        "print-engine-data",
+				Value:       false,
+				Usage:       "Log time since start of program",
+				Destination: &args.PrintEngineData,
+			},
+			&cli.BoolFlag{
+				Name:        "print-states",
+				Value:       false,
+				Usage:       "Log time since start of program",
+				Destination: &args.PrintStates,
 			},
 			&cli.BoolFlag{
 				Name:        "timer",

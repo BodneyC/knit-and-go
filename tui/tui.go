@@ -26,9 +26,11 @@ type Screen struct {
 	keymapsPar,
 	blockDescPar,
 	groupDescPar,
-	rowDescPar,
+	groupCtrPar,
 	rowCtrPar,
-	stitchCtrPar,
+	rowDescPar,
+	secondCtrPar,
+	primaryCtrPar,
 	stateCtrPar,
 	prevRow,
 	nextRow,
@@ -45,12 +47,12 @@ func prettyRowWithHighlight(state *ast.CurrentState) string {
 	for idx, fragment := range state.Lc.Row {
 		if fragment == "{" || (len(state.Lc.Row) > idx+1 && state.Lc.Row[idx+1][0] == '}') {
 			if idx == state.Ctr.StitchPhrase {
-				fragment = fmt.Sprintf("[%s](fg:red)", fragment)
+				fragment = fmt.Sprintf("[%s](fg:magenta)", fragment)
 			}
 			s = append(s, fragment)
 		} else {
 			if idx == state.Ctr.StitchPhrase {
-				fragment = fmt.Sprintf("[%s](fg:red)", fragment)
+				fragment = fmt.Sprintf("[%s](fg:magenta)", fragment)
 			}
 			if idx == len(state.Lc.Row)-1 {
 				s = append(s, fmt.Sprintf("%s", fragment))
@@ -66,17 +68,17 @@ func (s *Screen) paragraphSetup() {
 	s.keymapsPar = w.NewParagraph()
 	s.keymapsPar.Title = "Keymaps"
 	s.keymapsPar.TitleStyle.Modifier = ui.ModifierBold
-	s.keymapsPar.Text = `q: quit
+	s.keymapsPar.Text = `[q: quit
 j: next
 k: previous
 l: right
 h: left
-s: stitch up
-S: stitch down
-r: row up
-R: row down
+a: primary up
+A: primary down
+s: secondary up
+S: secondary down
 x: ctr reset
-^s: save`
+	^s: save](fg:blue)`
 
 	s.blockDescPar = w.NewParagraph()
 	s.blockDescPar.Title = "Descriptions"
@@ -88,19 +90,34 @@ x: ctr reset
 	s.groupDescPar.TitleStyle.Modifier = ui.ModifierBold
 	s.groupDescPar.BorderTop = false
 	s.groupDescPar.BorderBottom = false
+	s.groupDescPar.BorderRight = false
+
+	s.groupCtrPar = w.NewParagraph()
+	s.groupCtrPar.Title = "Group counter:"
+	s.groupCtrPar.TitleStyle.Modifier = ui.ModifierBold
+	s.groupCtrPar.BorderTop = false
+	s.groupCtrPar.BorderBottom = false
+	s.groupCtrPar.BorderLeft = false
 
 	s.rowDescPar = w.NewParagraph()
 	s.rowDescPar.Title = "Row description:"
 	s.rowDescPar.TitleStyle.Modifier = ui.ModifierBold
 	s.rowDescPar.BorderTop = false
+	s.rowDescPar.BorderRight = false
 
 	s.rowCtrPar = w.NewParagraph()
-	s.rowCtrPar.Title = "Row counter"
+	s.rowCtrPar.Title = "Row counter:"
 	s.rowCtrPar.TitleStyle.Modifier = ui.ModifierBold
+	s.rowCtrPar.BorderTop = false
+	s.rowCtrPar.BorderLeft = false
 
-	s.stitchCtrPar = w.NewParagraph()
-	s.stitchCtrPar.Title = "Stitch counter"
-	s.stitchCtrPar.TitleStyle.Modifier = ui.ModifierBold
+	s.secondCtrPar = w.NewParagraph()
+	s.secondCtrPar.Title = "Secondary counter"
+	s.secondCtrPar.TitleStyle.Modifier = ui.ModifierBold
+
+	s.primaryCtrPar = w.NewParagraph()
+	s.primaryCtrPar.Title = "Primary counter"
+	s.primaryCtrPar.TitleStyle.Modifier = ui.ModifierBold
 
 	s.stateCtrPar = w.NewParagraph()
 	s.stateCtrPar.Title = "Page counter"
@@ -126,24 +143,54 @@ x: ctr reset
 }
 
 func (s *Screen) setParagraphs(state *ast.CurrentState) error {
-	s.blockDescPar.Text = state.Desc.Block
-	s.groupDescPar.Text = state.Desc.Group
-	s.rowDescPar.Text = state.Desc.Row
-	s.rowCtrPar.Text = strconv.Itoa(state.Ctr.Row)
-	s.stitchCtrPar.Text = strconv.Itoa(state.Ctr.Stitch)
-	s.stateCtrPar.Text = fmt.Sprintf("%d/%d", s.engine.StateIdx, len(s.engine.States)-1)
+	s.blockDescPar.Text = fmt.Sprintf("[%s](fg:green)", state.Desc.Block)
+	s.groupDescPar.Text = fmt.Sprintf("[%s](fg:green)", state.Desc.Group)
+	if state.GroupMax != 0 {
+		lcol := "yellow"
+		if state.GroupCtr == state.GroupMax {
+			lcol = "green"
+		}
+		s.groupCtrPar.Text = fmt.Sprintf("[%d](fg:%s)/[%d](fg:green)", state.GroupCtr, lcol, state.GroupMax)
+	} else {
+		s.groupCtrPar.Text = ""
+	}
+	s.rowDescPar.Text = fmt.Sprintf("[%s](fg:green)", state.Desc.Row)
+	if state.RowMax != 0 {
+		lcol := "yellow"
+		if state.RowCtr == state.RowMax {
+			lcol = "green"
+		}
+		s.rowCtrPar.Text = fmt.Sprintf("[%d](fg:%s)/[%d](fg:green)", state.RowCtr, lcol, state.RowMax)
+	} else {
+		s.rowCtrPar.Text = ""
+	}
+	if state.Ctr.Stitch == 0 {
+		s.primaryCtrPar.Text = fmt.Sprintf("[%s](fg:red)", strconv.Itoa(state.Ctr.Stitch))
+	} else {
+		s.primaryCtrPar.Text = fmt.Sprintf("[%s](fg:green)", strconv.Itoa(state.Ctr.Stitch))
+	}
+	if state.Ctr.Row == 0 {
+		s.secondCtrPar.Text = fmt.Sprintf("[%s](fg:red)", strconv.Itoa(state.Ctr.Row))
+	} else {
+		s.secondCtrPar.Text = fmt.Sprintf("[%s](fg:green)", strconv.Itoa(state.Ctr.Row))
+	}
+	lcol := "yellow"
+	if s.engine.StateIdx == len(s.engine.States)-1 {
+		lcol = "green"
+	}
+	s.stateCtrPar.Text = fmt.Sprintf("[%d](fg:%s)/[%d](fg:green)", s.engine.StateIdx, lcol, len(s.engine.States)-1)
 	s.currentRowPar.Text = prettyRowWithHighlight(state)
 	s.argsPar.Text = strings.Join(state.Lc.Args, ", ")
 
 	if s.engine.StateIdx-1 >= 0 {
-		s.prevRow.Text = s.engine.States[s.engine.StateIdx-1].HistRow
+		s.prevRow.Text = fmt.Sprintf("[%s](fg:blue)", s.engine.States[s.engine.StateIdx-1].HistRow)
 	} else {
-		s.prevRow.Text = "Start of pattern"
+		s.prevRow.Text = "[Start of pattern](fg:blue)"
 	}
 	if s.engine.StateIdx+1 < len(s.engine.States) {
-		s.nextRow.Text = s.engine.States[s.engine.StateIdx+1].HistRow
+		s.nextRow.Text = fmt.Sprintf("[%s](fg:cyan)", s.engine.States[s.engine.StateIdx+1].HistRow)
 	} else {
-		s.nextRow.Text = "End of pattern"
+		s.nextRow.Text = "[End of pattern](fg:cyan)"
 	}
 
 	return nil
@@ -172,8 +219,14 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 			ui.NewCol(0.8,
 				// Descriptions
 				ui.NewRow(0.4, s.blockDescPar),
-				ui.NewRow(0.3, s.groupDescPar),
-				ui.NewRow(0.3, s.rowDescPar),
+				ui.NewRow(0.3,
+					ui.NewCol(0.7, s.groupDescPar),
+					ui.NewCol(0.3, s.groupCtrPar),
+				),
+				ui.NewRow(0.3,
+					ui.NewCol(0.7, s.rowDescPar),
+					ui.NewCol(0.3, s.rowCtrPar),
+				),
 			),
 			ui.NewCol(0.2, s.keymapsPar),
 		),
@@ -188,8 +241,8 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 		),
 		ui.NewRow(0.1,
 			// Counters
-			ui.NewCol(1.0/3, s.stitchCtrPar),
-			ui.NewCol(1.0/3, s.rowCtrPar),
+			ui.NewCol(1.0/3, s.primaryCtrPar),
+			ui.NewCol(1.0/3, s.secondCtrPar),
 			ui.NewCol(1.0/3, s.stateCtrPar),
 		),
 	)
@@ -254,14 +307,14 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 				))
 			}
 
-		case "s":
+		case "a":
 			state.Ctr.Stitch += 1
 			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
 				log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.Stitch),
 				"Increased stitch",
 			))
 
-		case "S":
+		case "A":
 			if state.Ctr.Stitch-1 >= 0 {
 				state.Ctr.Stitch -= 1
 				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
@@ -275,14 +328,14 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 				))
 			}
 
-		case "r":
+		case "s":
 			state.Ctr.Row += 1
 			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
 				log.WithField("row", s.engine.States[s.engine.StateIdx].Ctr.Row),
 				"Increased row counter",
 			))
 
-		case "R":
+		case "S":
 			if state.Ctr.Row-1 >= 0 {
 				state.Ctr.Row -= 1
 				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
@@ -301,7 +354,7 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 			state.Ctr.Row = 0
 			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
 				log.WithFields(log.Fields{
-					"row": s.engine.States[s.engine.StateIdx].Ctr.Row,
+					"row":    s.engine.States[s.engine.StateIdx].Ctr.Row,
 					"stitch": s.engine.States[s.engine.StateIdx].Ctr.Stitch,
 				}),
 				"Reset counters",
@@ -312,7 +365,7 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 			grid.SetRect(0, 0, payload.Width, payload.Height)
 			logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
 				log.WithFields(log.Fields{
-					"width": payload.Width,
+					"width":  payload.Width,
 					"height": payload.Height,
 				}),
 				"Screen resize",

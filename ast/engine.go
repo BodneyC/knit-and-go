@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -101,7 +102,6 @@ func (e *EngineData) PrintLines() {
 		if len(line.Args) > 0 {
 			fmt.Printf(" args: %s\n", strings.Join(line.Args, ", "))
 		}
-		fmt.Println("---")
 	}
 }
 
@@ -138,22 +138,26 @@ type Descs struct {
 }
 
 type CurrentState struct {
-	Lc             LineContainer
-	Desc           Descs
-	Ctr            Counters
-	HistRow        string
-	NestedRowCtr   int
-	NestedGroupCtr int
+	Lc       LineContainer
+	Desc     Descs
+	Ctr      Counters
+	HistRow  string
+	GroupCtr int
+	RowCtr   int
+	GroupMax int
+	RowMax   int
 }
 
 func MakeCurrentState() CurrentState {
 	return CurrentState{
-		Lc:             LineContainer{},
-		Desc:           Descs{Row: "", Group: "", Block: ""},
-		Ctr:            Counters{Stitch: 0, Row: 0, StitchPhrase: 0},
-		HistRow:        "",
-		NestedRowCtr:   0,
-		NestedGroupCtr: 0,
+		Lc:       LineContainer{},
+		Desc:     Descs{Row: "", Group: "", Block: ""},
+		Ctr:      Counters{Stitch: 0, Row: 0, StitchPhrase: 0},
+		HistRow:  "",
+		GroupCtr: 1,
+		RowCtr:   1,
+		GroupMax: 0,
+		RowMax:   0,
 	}
 }
 
@@ -161,18 +165,18 @@ func (o CurrentState) String() string {
 	return fmt.Sprintf(`----------------------
 Block desc.Title = ""
 %s
-Group desc [%d]:
+Group desc (%d/%d):
 %s
-Row desc [%d]:
+Row desc:
 %s
 Row:
 %s
 Args:
 %s`,
 		o.Desc.Block,
-		o.NestedGroupCtr,
+		o.GroupCtr,
+		o.GroupMax,
 		o.Desc.Group,
-		o.NestedRowCtr,
 		o.Desc.Row,
 		o.Lc.prettyRow(),
 		strings.Join(o.Lc.Args, ", "),
@@ -261,42 +265,109 @@ func shorten(desc []string) string {
 	return desc[0]
 }
 
+type IdxAndArgs struct {
+	idx  int
+	args []string
+}
+
 func (e *Engine) FormStates() {
+	nestedGroupCtr, nestedRowCtr := 0, 0
+	groupStartArr := make([]IdxAndArgs, 0)
+	rowStartArr := make([]IdxAndArgs, 0)
 	state := MakeCurrentState()
 	for i := 0; i < len(e.engineData.Lines); i++ {
 		lc := e.engineData.Lines[i]
 		if lc.rowIsEqual(START_OF_BLOCK_LC) {
 			state.Desc.Block = strings.Join(lc.Desc, "\n")
+
 		} else if lc.rowIsEqual(END_OF_BLOCK_LC) {
 			break
+
 		} else if lc.rowIsEqual(START_OF_GROUP_LC) {
 			log.WithFields(log.Fields{
-				"groupCtr": state.NestedGroupCtr,
+				"groupCtr": nestedGroupCtr,
 				"desc":     shorten(lc.Desc),
-			}).Trace("[Engine.FormStates] ", strings.Repeat("  ", state.NestedGroupCtr), "Start of group")
-			if len(lc.Desc) > 0 {
+				"args":     shorten(lc.Args),
+			}).Debug("[Engine.FormStates] ", strings.Repeat("  ", nestedGroupCtr), "Start of group")
+			if len(lc.Desc) != 0 {
 				state.Desc.Group = strings.Join(lc.Desc, "\n")
 			}
-			state.NestedGroupCtr += 1
+			groupStartArr = append(groupStartArr, IdxAndArgs{
+				idx:  len(e.States),
+				args: lc.Args,
+			})
+			if len(lc.Args) == 1 {
+				if val, err := strconv.Atoi(lc.Args[0]); err == nil {
+					state.GroupMax = val
+				}
+			}
+			nestedGroupCtr += 1
+
 		} else if lc.rowIsEqual(END_OF_GROUP_LC) {
-			state.NestedGroupCtr -= 1
-			log.WithField("groupCtr", state.NestedGroupCtr).Trace("[Engine.FormStates] ", strings.Repeat("  ", state.NestedGroupCtr), "End of group")
+			lastIdx := len(groupStartArr) - 1
+			if lastIdx+1 != nestedGroupCtr {
+				panic("End of group reached, no groupStartIdxArr")
+			}
+			var gidxAndArgs IdxAndArgs
+			gidxAndArgs, groupStartArr = groupStartArr[lastIdx], groupStartArr[:lastIdx]
+			gmax := e.States[gidxAndArgs.idx].GroupMax
+			if gmax != 0 {
+				slice := append(make([]CurrentState, 0), e.States[gidxAndArgs.idx:len(e.States)]...)
+				for i := 0; i < gmax-1; i++ {
+					for idx := range slice {
+						slice[idx].GroupCtr += 1
+					}
+					e.States = append(e.States, slice...)
+				}
+			}
+			nestedGroupCtr -= 1
+			state.GroupMax = 1
+			log.WithField("groupCtr", nestedGroupCtr).Debug("[Engine.FormStates] ", strings.Repeat("  ", nestedGroupCtr), "End of group")
+
 		} else if lc.rowIsEqual(START_OF_ROW_LC) {
 			log.WithFields(log.Fields{
-				"rowCtr": state.NestedRowCtr,
+				"rowCtr": nestedRowCtr,
 				"desc":   shorten(lc.Desc),
-			}).Trace("[Engine.FormStates] ", strings.Repeat("  ", state.NestedRowCtr), "Start of row")
+			}).Debug("[Engine.FormStates] ", strings.Repeat("  ", nestedRowCtr), "Start of row")
 			if len(lc.Desc) > 0 {
 				state.Desc.Row = strings.Join(lc.Desc, "\n")
 			}
-			state.NestedRowCtr += 1
+			rowStartArr = append(rowStartArr, IdxAndArgs{
+				idx:  len(e.States),
+				args: lc.Args,
+			})
+			if len(lc.Args) == 1 {
+				if val, err := strconv.Atoi(lc.Args[0]); err == nil {
+					state.RowMax = val
+				}
+			}
+			nestedRowCtr += 1
+
 		} else if lc.rowIsEqual(END_OF_ROW_LC) {
-			state.NestedRowCtr -= 1
-			log.WithField("rowCtr", state.NestedRowCtr).Trace("[Engine.FormStates] ", strings.Repeat("  ", state.NestedRowCtr), "End of row")
+			lastIdx := len(rowStartArr) - 1
+			if lastIdx+1 != nestedRowCtr {
+				panic("End of row reached, no rowStartArr")
+			}
+			var idxAndArgs IdxAndArgs
+			idxAndArgs, rowStartArr = rowStartArr[lastIdx], rowStartArr[:lastIdx]
+			rmax := e.States[idxAndArgs.idx].RowMax
+			if rmax != 0 {
+				slice := append(make([]CurrentState, 0), e.States[idxAndArgs.idx:len(e.States)]...)
+				for i := 0; i < rmax-1; i++ {
+					for idx := range slice {
+						slice[idx].RowCtr += 1
+					}
+					e.States = append(e.States, slice...)
+				}
+			}
+			nestedRowCtr -= 1
+			state.RowMax = 1
+			log.WithField("rowCtr", nestedRowCtr).Debug("[Engine.FormStates] ", strings.Repeat("  ", nestedRowCtr), "End of row")
+
 		} else {
 			if len(lc.Row) > 0 {
 				state.Lc = lc
-				state.HistRow = fmt.Sprintf("[%s](color:gray)", lc.prettyRow())
+				state.HistRow = lc.prettyRow()
 				e.States = append(e.States, state)
 			}
 		}

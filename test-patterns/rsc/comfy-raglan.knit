@@ -11,15 +11,13 @@ pu := pick-up
 
 K := knit
 P := purl
-Kfb := knit-forward-and-back
-
-SOME-ROW = { K(39) pm K(9) pm }
+Kfb := knit-front-and-back
 
 yolk = {
   use(5.0mm, circular)
   con(96)
 
-  P SOME-ROW(2) K
+  K(39) pm K(9) pm
 
   {
     { Kfb K(-m) Kfb slip(m) }(*)
@@ -50,14 +48,17 @@ sleeve = {
   { K(*) }(16")
 
   { K P }(2")
+  {
+    { K P }(12)
+  }(6)
 }
 
 ; We are about to do the yolk
 ; The yolk requires a load of fun stuff
-yolk
+; yolk
 
 ; Now it's time to do the body
-body
+; body
 
 ; Now it's time to do the sleeves
 sleeve(2)

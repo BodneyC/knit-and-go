@@ -138,9 +138,17 @@ func main() {
 			log.Fatalf("Error during walk for locals\n%#v", err)
 		}
 
+		if args.PrintEngineData {
+			engineData.PrintLines()
+		}
+
 		log.Info("Creating engine from data")
 		engine = ast.MakeEngine(engineData, args.StatesFile)
 		engine.FormStates()
+
+		if args.PrintStates {
+			engine.PrintEngine()
+		}
 
 		if args.StatesFile != "" {
 			log.WithField("statesfile", args.StatesFile).Info("Writing to file")

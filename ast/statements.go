@@ -76,6 +76,7 @@ func (s *RowStmt) Pos() Position { return s.Row.Stitches[0].Pos() }
 func (s *RowStmt) WalkForLines(e *EngineData) error {
 	startLc, endLc := START_OF_ROW_LC, END_OF_ROW_LC
 	startLc.Desc = s.Desc.TextSlice(e)
+	startLc.Args = s.Row.Args.TextSlice(e)
 	e.Lines = append(e.Lines, startLc)
 	lc := MakeLineContainer()
 	if err := s.Row.WalkForLines(e, &lc); err != nil {
