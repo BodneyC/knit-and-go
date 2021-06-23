@@ -1,0 +1,718 @@
+{
+  "States": [
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "cast-on 91"
+        ]
+      },
+      "Desc": {
+        "Row": "",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "cast-on 91",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 0
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [
+          "to end of row"
+        ],
+        "Row": [
+          "knit",
+          "purl"
+        ]
+      },
+      "Desc": {
+        "Row": "over an even number of stitches\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 1
+      },
+      "HistRow": "knit, purl",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [
+          "to end of row"
+        ],
+        "Row": [
+          "purl",
+          "knit"
+        ]
+      },
+      "Desc": {
+        "Row": "over an even number of stitches\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl, knit",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "purl",
+          "knit",
+          "purl to end of row",
+          "purl",
+          "knit",
+          "purl"
+        ]
+      },
+      "Desc": {
+        "Row": "over an even number of stitches\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, purl, knit, purl to end of row, purl, knit, purl",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "yarn-over",
+          "sl-sl-kn",
+          "knit 7",
+          "knit-two-tog",
+          "knit",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 1 of lace (assure markers every 12)\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, { yarn-over, sl-sl-kn, knit 7, knit-two-tog, knit } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 1 of lace (assure markers every 12)\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "knit",
+          "yarn-over",
+          "sl-sl-kn",
+          "knit 5",
+          "knit-two-tog",
+          "yarn-over",
+          "knit 2",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 3 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, { knit, yarn-over, sl-sl-kn, knit 5, knit-two-tog, yarn-over, knit 2 } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 3 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-sl-kn",
+          "knit 3",
+          "knit-two-tog",
+          "yarn-over",
+          "knit-two-tog",
+          "yarn-over",
+          "knit 2",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 5 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, { yarn-over, sl-sl-kn, yarn-over, sl-sl-kn, knit 3, knit-two-tog, yarn-over, knit-two-tog, yarn-over, knit 2 } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 5 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "knit",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-sl-kn",
+          "knit",
+          "knit-two-tog",
+          "yarn-over",
+          "knit-two-tog",
+          "yarn-over",
+          "knit 2",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 7 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 5
+      },
+      "HistRow": "knit, { knit, yarn-over, sl-sl-kn, yarn-over, sl-sl-kn, knit, knit-two-tog, yarn-over, knit-two-tog, yarn-over, knit 2 } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 7 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-k2t-pass",
+          "yarn-over",
+          "knit-two-tog",
+          "yarn-over",
+          "knit-two-tog",
+          "yarn-over",
+          "knit",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 9 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, { yarn-over, sl-sl-kn, yarn-over, sl-sl-kn, yarn-over, sl-k2t-pass, yarn-over, knit-two-tog, yarn-over, knit-two-tog, yarn-over, knit } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 9 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "knit 3",
+          "knit-two-tog",
+          "yarn-over",
+          "knit",
+          "yarn-over",
+          "sl-sl-kn",
+          "knit 4",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 11 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, { knit 3, knit-two-tog, yarn-over, knit, yarn-over, sl-sl-kn, knit 4 } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 11 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "knit 2",
+          "knit-two-tog",
+          "yarn-over",
+          "knit 3",
+          "yarn-over",
+          "sl-sl-kn",
+          "knit 3",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 13 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, { knit 2, knit-two-tog, yarn-over, knit 3, yarn-over, sl-sl-kn, knit 3 } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 13 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "knit",
+          "knit-two-tog",
+          "yarn-over",
+          "knit-two-tog",
+          "yarn-over",
+          "knit",
+          "knit-two-tog",
+          "yarn-over",
+          "yarn-over",
+          "sl-sl-kn",
+          "knit 2",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 15 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, { knit, knit-two-tog, yarn-over, knit-two-tog, yarn-over, knit, knit-two-tog, yarn-over, yarn-over, sl-sl-kn, knit 2 } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 15 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit",
+          "{",
+          "knit-two-tog",
+          "yarn-over",
+          "knit-two-tog",
+          "yarn-over",
+          "knit 3",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-sl-kn",
+          "knit",
+          "} to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 17 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit, { knit-two-tog, yarn-over, knit-two-tog, yarn-over, knit 3, yarn-over, sl-sl-kn, yarn-over, sl-sl-kn, knit } to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 17 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "knit-two-tog",
+          "yarn-over",
+          "{",
+          "knit-two-tog",
+          "yarn-over",
+          "knit-two-tog",
+          "yarn-over",
+          "knit",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-k2t-pass",
+          "yarn-over",
+          "} until 14",
+          "knit-two-tog",
+          "yarn-over",
+          "knit-two-tog",
+          "yarn-over",
+          "knit",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-sl-kn",
+          "yarn-over",
+          "sl-sl-kn"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 19 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "knit-two-tog, yarn-over, { knit-two-tog, yarn-over, knit-two-tog, yarn-over, knit, yarn-over, sl-sl-kn, yarn-over, sl-sl-kn, yarn-over, sl-k2t-pass, yarn-over } until 14, knit-two-tog, yarn-over, knit-two-tog, yarn-over, knit, yarn-over, sl-sl-kn, yarn-over, sl-sl-kn, yarn-over, sl-sl-kn",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    },
+    {
+      "Lc": {
+        "Desc": [],
+        "Args": [],
+        "Row": [
+          "purl to end of row"
+        ]
+      },
+      "Desc": {
+        "Row": "Row 19 of lace\n",
+        "Group": "",
+        "Block": "diamond-blanket\nNotes:\n- sk2p: slip as if to knit; knit two together; pass slipped over\n- ssk: slip as if to knit, twice; left needle into front of slipped; knit together\n"
+      },
+      "Ctr": {
+        "Stitch": 0,
+        "Row": 0,
+        "StitchPhrase": 0
+      },
+      "HistRow": "purl to end of row",
+      "GroupCtr": 1,
+      "RowCtr": 1,
+      "GroupMax": 0,
+      "RowMax": 1
+    }
+  ],
+  "StateIdx": 12,
+  "StatesFile": "./test-patterns/diamond-blanket.states.json"
+}

@@ -253,5 +253,5 @@ func isLineBreak(r rune) bool {
 }
 
 func isIdentifier(r rune) bool {
-	return unicode.IsLetter(r) || r == '-'
+	return unicode.IsLetter(r) || unicode.IsDigit(r) || r == '-'
 }

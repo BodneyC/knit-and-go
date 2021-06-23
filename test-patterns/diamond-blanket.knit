@@ -1,0 +1,65 @@
+; diamond-blanket
+;  Notes:
+;  - sk2p: slip as if to knit; knit two together; pass slipped over
+;  - ssk: slip as if to knit, twice; left needle into front of slipped; knit together
+; https://cdn.accentuate.io/4679123435613/12378270040157/
+;   Knit-Pattern-Cozy-Luxe-Baby-Throw-90428AD-v1591474618359.PDF
+
+k := knit
+p := purl
+con := cast-on
+yo := yarn-over
+k2t := knit-two-tog
+ssk := sl-sl-kn
+sk2p := sl-k2t-pass
+
+pre = k p k
+post = p k p
+
+seed = {
+  ; over an even number of stitches
+  { k p }(*)
+  { p k }(*)
+}
+
+lace = {
+  ; Row 1 of lace (assure markers every 12)
+  k { yo ssk k(7) k2t k }(*)
+  p(*)
+  ; Row 3 of lace
+  k { k yo ssk k(5) k2t yo k(2) }(*)
+  p(*)
+  ; Row 5 of lace
+  k { yo ssk yo ssk k(3) k2t yo k2t yo k(2) }(*)
+  p(*)
+  ; Row 7 of lace
+  k { k yo ssk yo ssk k k2t yo k2t yo k(2) }(*)
+  p(*)
+  ; Row 9 of lace
+  k { yo ssk yo ssk yo sk2p yo k2t yo k2t yo k }(*)
+  p(*)
+  ; Row 11 of lace
+  k { k(3) k2t yo k yo ssk k(4) }(*)
+  p(*)
+  ; Row 13 of lace
+  k { k(2) k2t yo k(3) yo ssk k(3) }(*)
+  p(*)
+  ; Row 15 of lace
+  k { k k2t yo k2t yo k k2t yo yo ssk k(2) }(*)
+  p(*)
+  ; Row 17 of lace
+  k { k2t yo k2t yo k(3) yo ssk yo ssk k }(*)
+  p(*)
+  ; Row 19 of lace
+  k2t yo { k2t yo k2t yo k yo ssk yo ssk yo sk2p yo }(-14) k2t yo k2t yo k yo ssk yo ssk yo ssk
+  p(*)
+}
+
+main = {
+  con(91)
+  seed(2)
+  pre p(*) post
+  lace(8)
+}
+
+main

@@ -235,7 +235,7 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 				// Rows
 				ui.NewRow(0.25, s.prevRow),
 				ui.NewRow(0.3, s.currentRowPar),
-				ui.NewRow(0.2, s.argsPar),
+				ui.NewRow(0.3, s.argsPar),
 				ui.NewRow(0.25, s.nextRow),
 			),
 		),
@@ -282,6 +282,10 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 		case "l", "<Right>":
 			if len(state.Lc.Row) > state.Ctr.StitchPhrase+1 {
 				state.Ctr.StitchPhrase += 1
+				phrase := state.Lc.Row[s.engine.States[s.engine.StateIdx].Ctr.StitchPhrase]
+				if (phrase == "{" || strings.HasPrefix(phrase, "}")) && state.Ctr.StitchPhrase-1 >= 0 {
+					state.Ctr.StitchPhrase += 1
+				}
 				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
 					log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.StitchPhrase),
 					"Moved to right stitch",
@@ -296,6 +300,10 @@ func (s *Screen) Run() (*util.LogrusCalls, error) {
 		case "h", "<Left>":
 			if state.Ctr.StitchPhrase-1 >= 0 {
 				state.Ctr.StitchPhrase -= 1
+				phrase := state.Lc.Row[s.engine.States[s.engine.StateIdx].Ctr.StitchPhrase]
+				if (phrase == "{" || strings.HasPrefix(phrase, "}")) && state.Ctr.StitchPhrase-1 >= 0 {
+					state.Ctr.StitchPhrase -= 1
+				}
 				logCalls.Trace = append(logCalls.Trace, util.MakeLogrusCall(
 					log.WithField("stitch", s.engine.States[s.engine.StateIdx].Ctr.StitchPhrase),
 					"Moved to left stitch",
